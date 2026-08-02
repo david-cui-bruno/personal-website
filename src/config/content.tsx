@@ -101,11 +101,17 @@ const SPOTIFY = {
   tracks: [] as string[],
 }
 
+// TODO(David): paste your Beli profile share link here (Beli app → Profile →
+// share icon → Copy link). Leave '' and the food panel shows plain text.
+const BELI_URL = ''
+
 function SpotifyEmbed({ type, id, compact }: { type: string; id: string; compact?: boolean }) {
+  // Accept either a bare ID or a full share link (open.spotify.com/<type>/<id>?...).
+  const cleanId = id.includes('/') ? (id.split('?')[0].split('/').pop() ?? id) : id
   return (
     <iframe
-      title={`spotify-${type}-${id}`}
-      src={`https://open.spotify.com/embed/${type}/${id}?theme=0`}
+      title={`spotify-${type}-${cleanId}`}
+      src={`https://open.spotify.com/embed/${type}/${cleanId}?theme=0`}
       width="100%"
       height={compact ? 152 : 352}
       frameBorder="0"
@@ -203,8 +209,17 @@ export const PANEL_CONTENT: Record<string, { heading: string; body: ReactNode }>
           in Dallas. Go eat there.
         </p>
         <h3>Where I've eaten</h3>
-        {/* TODO(David): paste your Beli share link (Beli app → profile → share) into the <a> below */}
-        <p>Every meal gets rated on Beli.</p>
+        {BELI_URL ? (
+          <p>
+            Every meal gets rated on{' '}
+            <a href={BELI_URL} target="_blank" rel="noreferrer">
+              Beli ↗
+            </a>
+            .
+          </p>
+        ) : (
+          <p>Every meal gets rated on Beli.</p>
+        )}
         <h3>Dishes I'll defend with my life</h3>
         <ul>
           <li>Soba</li>
