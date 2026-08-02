@@ -28,8 +28,9 @@ function dampAngle(current: number, target: number, k: number, dt: number): numb
 }
 
 // ---------------------------------------------------------------------------
-// The cat itself: hand-built from boxes, tabby markings included.
-// Animated procedurally — diagonal leg pairs, body bob, tail sway, ear twitch.
+// Bebo: hand-built from boxes, standing on two legs like the little mascot
+// he is. Tabby markings included. Animated procedurally — alternating leg
+// steps, opposite arm swings, waddle roll, tail sway, ear twitches.
 // ---------------------------------------------------------------------------
 
 interface CatRefs {
@@ -38,7 +39,8 @@ interface CatRefs {
   earL: RefObject<THREE.Mesh | null>
   earR: RefObject<THREE.Mesh | null>
   tail: RefObject<THREE.Group | null>[]
-  legs: RefObject<THREE.Group | null>[]
+  legs: RefObject<THREE.Group | null>[] // [left, right]
+  arms: RefObject<THREE.Group | null>[] // [left, right]
 }
 
 function CatModel({ refs }: { refs: CatRefs }) {
@@ -54,76 +56,65 @@ function CatModel({ refs }: { refs: CatRefs }) {
     [],
   )
 
-  const legPositions: [number, number][] = [
-    [-0.14, 0.27], // front-left
-    [0.14, 0.27], // front-right
-    [-0.14, -0.27], // back-left
-    [0.14, -0.27], // back-right
-  ]
-
   return (
     <group scale={0.92}>
       <group ref={refs.body}>
-        {/* torso */}
-        <mesh castShadow material={mats.base} position={[0, 0.5, 0]}>
-          <boxGeometry args={[0.42, 0.36, 0.85]} />
+        {/* upright torso */}
+        <mesh castShadow material={mats.base} position={[0, 0.56, 0]}>
+          <boxGeometry args={[0.42, 0.44, 0.3]} />
         </mesh>
-        <mesh material={mats.belly} position={[0, 0.35, 0.02]}>
-          <boxGeometry args={[0.36, 0.1, 0.62]} />
-        </mesh>
-        {/* back stripes */}
-        {[-0.28, -0.12, 0.05, 0.22].map((z, i) => (
-          <mesh key={i} material={mats.stripe} position={[0, 0.675, z]}>
-            <boxGeometry args={[0.44, 0.035, 0.09]} />
+        {/* tabby rings around the torso (belly patch covers the front) */}
+        {[0.46, 0.58, 0.7].map((y, i) => (
+          <mesh key={i} material={mats.stripe} position={[0, y, -0.01]}>
+            <boxGeometry args={[0.435, 0.045, 0.31]} />
           </mesh>
         ))}
-        {/* side stripes */}
-        {[-0.2, 0.13].map((z, i) => (
-          <mesh key={i} material={mats.stripe} position={[0, 0.56, z]}>
-            <boxGeometry args={[0.45, 0.16, 0.06]} />
-          </mesh>
-        ))}
+        {/* cream belly, front */}
+        <mesh material={mats.belly} position={[0, 0.53, 0.15]}>
+          <boxGeometry args={[0.3, 0.34, 0.04]} />
+        </mesh>
 
-        {/* head */}
-        <group ref={refs.head} position={[0, 0.72, 0.47]}>
-          <mesh castShadow material={mats.base} position={[0, 0, 0]}>
-            <boxGeometry args={[0.32, 0.28, 0.28]} />
+        {/* head (chibi-big) */}
+        <group ref={refs.head} position={[0, 0.95, 0.02]}>
+          <mesh castShadow material={mats.base}>
+            <boxGeometry args={[0.36, 0.3, 0.3]} />
           </mesh>
           {/* forehead "M" */}
           {[-0.05, 0, 0.05].map((x, i) => (
-            <mesh key={i} material={mats.stripe} position={[x, 0.145, 0.01]} rotation-y={x * -3}>
+            <mesh key={i} material={mats.stripe} position={[x, 0.155, 0.02]} rotation-y={x * -3}>
               <boxGeometry args={[0.025, 0.012, 0.14]} />
             </mesh>
           ))}
+          {/* muzzle + nose */}
           <mesh material={mats.belly} position={[0, -0.06, 0.17]}>
             <boxGeometry args={[0.16, 0.11, 0.09]} />
           </mesh>
-          <mesh material={mats.nose} position={[0, -0.025, 0.218]}>
+          <mesh material={mats.nose} position={[0, -0.025, 0.222]}>
             <boxGeometry args={[0.05, 0.035, 0.03]} />
           </mesh>
           {/* eyes */}
           {[-0.09, 0.09].map((x, i) => (
-            <mesh key={i} material={mats.eye} position={[x, 0.035, 0.143]}>
+            <mesh key={i} material={mats.eye} position={[x, 0.035, 0.155]}>
               <boxGeometry args={[0.05, 0.06, 0.02]} />
             </mesh>
           ))}
           {/* ears */}
-          <mesh ref={refs.earL} castShadow material={mats.base} position={[-0.11, 0.19, -0.02]}>
-            <coneGeometry args={[0.075, 0.15, 4]} />
+          <mesh ref={refs.earL} castShadow material={mats.base} position={[-0.12, 0.2, -0.02]}>
+            <coneGeometry args={[0.08, 0.16, 4]} />
           </mesh>
-          <mesh ref={refs.earR} castShadow material={mats.base} position={[0.11, 0.19, -0.02]}>
-            <coneGeometry args={[0.075, 0.15, 4]} />
+          <mesh ref={refs.earR} castShadow material={mats.base} position={[0.12, 0.2, -0.02]}>
+            <coneGeometry args={[0.08, 0.16, 4]} />
           </mesh>
-          <mesh material={mats.earInner} position={[-0.11, 0.16, 0.015]}>
-            <coneGeometry args={[0.04, 0.08, 4]} />
+          <mesh material={mats.earInner} position={[-0.12, 0.17, 0.015]}>
+            <coneGeometry args={[0.045, 0.09, 4]} />
           </mesh>
-          <mesh material={mats.earInner} position={[0.11, 0.16, 0.015]}>
-            <coneGeometry args={[0.04, 0.08, 4]} />
+          <mesh material={mats.earInner} position={[0.12, 0.17, 0.015]}>
+            <coneGeometry args={[0.045, 0.09, 4]} />
           </mesh>
         </group>
 
-        {/* tail: three chained segments with tabby rings */}
-        <group ref={refs.tail[0]} position={[0, 0.6, -0.42]} rotation-x={0.9}>
+        {/* tail: three chained segments with tabby rings, curling up behind */}
+        <group ref={refs.tail[0]} position={[0, 0.42, -0.16]} rotation-x={0.7}>
           <mesh castShadow material={mats.base} position={[0, 0, -0.13]}>
             <boxGeometry args={[0.085, 0.085, 0.26]} />
           </mesh>
@@ -141,16 +132,30 @@ function CatModel({ refs }: { refs: CatRefs }) {
             </group>
           </group>
         </group>
+
+        {/* arms, hanging from the shoulders */}
+        {[-1, 1].map((side, i) => (
+          <group key={i} ref={refs.arms[i]} position={[side * 0.25, 0.72, 0]} rotation-z={side * 0.1}>
+            <mesh castShadow material={mats.base} position={[0, -0.11, 0]}>
+              <boxGeometry args={[0.11, 0.24, 0.12]} />
+            </mesh>
+            {/* white paw */}
+            <mesh material={mats.belly} position={[0, -0.235, 0.01]}>
+              <boxGeometry args={[0.115, 0.08, 0.125]} />
+            </mesh>
+          </group>
+        ))}
       </group>
 
-      {/* legs pivot at the hip so they swing */}
-      {legPositions.map(([x, z], i) => (
-        <group key={i} ref={refs.legs[i]} position={[x, 0.32, z]}>
-          <mesh castShadow material={mats.base} position={[0, -0.15, 0]}>
-            <boxGeometry args={[0.12, 0.3, 0.12]} />
+      {/* legs pivot at the hip so they step */}
+      {[-1, 1].map((side, i) => (
+        <group key={i} ref={refs.legs[i]} position={[side * 0.11, 0.34, 0]}>
+          <mesh castShadow material={mats.base} position={[0, -0.14, 0]}>
+            <boxGeometry args={[0.14, 0.28, 0.15]} />
           </mesh>
-          <mesh material={mats.belly} position={[0, -0.29, 0.012]}>
-            <boxGeometry args={[0.125, 0.08, 0.135]} />
+          {/* white foot, toes forward */}
+          <mesh castShadow material={mats.belly} position={[0, -0.275, 0.03]}>
+            <boxGeometry args={[0.15, 0.09, 0.21]} />
           </mesh>
         </group>
       ))}
@@ -170,7 +175,8 @@ export function PlayerCat({ controls }: { controls: RefObject<CameraControls | n
     earL: useRef(null),
     earR: useRef(null),
     tail: [useRef(null), useRef(null), useRef(null)],
-    legs: [useRef(null), useRef(null), useRef(null), useRef(null)],
+    legs: [useRef(null), useRef(null)],
+    arms: [useRef(null), useRef(null)],
   }
 
   const [, getKeys] = useKeyboardControls()
@@ -286,32 +292,44 @@ export function PlayerCat({ controls }: { controls: RefObject<CameraControls | n
     const speedN = Math.min(speed / WALK_SPEED, 1.6)
     if (speed > 0.05) phase.current += dt * (5 + 7 * speedN)
 
-    // Bebo sits down after a while with nothing to do
+    // Bebo plops down after a while with nothing to do
     idleTime.current = speed < 0.05 && !useGame.getState().activePanel ? idleTime.current + dt : 0
     const sitTarget = idleTime.current > 7 ? 1 : 0
     sitW.current += (sitTarget - sitW.current) * (1 - Math.exp(-(sitTarget ? 3 : 7) * dt))
     const sit = sitW.current
     const stand = 1 - sit
 
-    const swing = Math.sin(phase.current) * 0.6 * Math.min(1, speedN + 0.15)
-    const [fl, fr, bl, br] = refs.legs
-    if (fl.current) fl.current.rotation.x = swing * stand - 0.16 * sit
-    if (br.current) br.current.rotation.x = swing * stand + 1.35 * sit
-    if (fr.current) fr.current.rotation.x = -swing * stand - 0.16 * sit
-    if (bl.current) bl.current.rotation.x = -swing * stand + 1.35 * sit
+    // biped gait: legs alternate, arms swing opposite
+    const amp = Math.min(1, speedN + 0.15)
+    const step = Math.sin(phase.current) * 0.62 * amp
+    const [legL, legR] = refs.legs
+    if (legL.current) legL.current.rotation.x = step * stand + 1.42 * sit
+    if (legR.current) legR.current.rotation.x = -step * stand + 1.42 * sit
+    const [armL, armR] = refs.arms
+    if (armL.current) {
+      armL.current.rotation.x = -step * 0.55 * stand - 0.25 * sit
+      armL.current.rotation.z = -0.1 - 0.22 * sit
+    }
+    if (armR.current) {
+      armR.current.rotation.x = step * 0.55 * stand - 0.25 * sit
+      armR.current.rotation.z = 0.1 + 0.22 * sit
+    }
 
     if (refs.body.current) {
       refs.body.current.position.y =
-        (Math.abs(Math.sin(phase.current * 2)) * 0.028 * speedN) * stand - 0.08 * sit + Math.sin(t * 2.1) * 0.006
-      refs.body.current.rotation.x = Math.sin(phase.current * 2) * 0.02 * speedN * stand - 0.42 * sit
+        Math.abs(Math.sin(phase.current)) * 0.035 * speedN * stand - 0.14 * sit + Math.sin(t * 2.1) * 0.006
+      // lean into the walk, tip back a little when sitting
+      refs.body.current.rotation.x = (0.09 * speedN + Math.sin(phase.current * 2) * 0.015 * speedN) * stand - 0.12 * sit
+      // waddle
+      refs.body.current.rotation.z = Math.sin(phase.current) * 0.05 * speedN * stand
     }
     if (refs.head.current) {
-      refs.head.current.rotation.x = Math.sin(phase.current * 2 + 1) * 0.03 * speedN * stand + 0.34 * sit
+      refs.head.current.rotation.x = (Math.sin(phase.current * 2 + 1) * 0.03 * speedN - 0.06 * speedN) * stand + 0.1 * sit
     }
     // tail: lifts with speed, lazy sway at rest, curls around when sitting
     if (refs.tail[0].current) {
-      refs.tail[0].current.rotation.x = (0.9 + speedN * 0.28 + Math.sin(t * 1.4) * 0.07) * stand + 0.35 * sit
-      refs.tail[0].current.rotation.y = Math.sin(t * 1.1) * 0.18 + 0.9 * sit
+      refs.tail[0].current.rotation.x = (0.7 + speedN * 0.3 + Math.sin(t * 1.4) * 0.07) * stand + 0.28 * sit
+      refs.tail[0].current.rotation.y = Math.sin(t * 1.1) * 0.18 + 0.95 * sit
     }
     for (let i = 1; i < 3; i++) {
       const seg = refs.tail[i].current
