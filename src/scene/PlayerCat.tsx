@@ -53,6 +53,7 @@ function CatModel({ refs }: { refs: CatRefs }) {
       earInner: new THREE.MeshStandardMaterial({ color: TABBY.earInner, flatShading: true, roughness: 0.9 }),
       nose: new THREE.MeshStandardMaterial({ color: TABBY.nose, flatShading: true, roughness: 0.8 }),
       eye: new THREE.MeshStandardMaterial({ color: TABBY.eye, roughness: 0.35 }),
+      shine: new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.2 }),
     }),
     [],
   )
@@ -60,75 +61,140 @@ function CatModel({ refs }: { refs: CatRefs }) {
   return (
     <group scale={0.92}>
       <group ref={refs.body}>
-        {/* upright torso */}
-        <mesh castShadow material={mats.base} position={[0, 0.56, 0]}>
-          <boxGeometry args={[0.42, 0.44, 0.3]} />
+        {/* two-part torso: wider hips, tapered chest */}
+        <mesh castShadow material={mats.base} position={[0, 0.45, 0]}>
+          <boxGeometry args={[0.46, 0.24, 0.33]} />
         </mesh>
-        {/* tabby rings around the torso (belly patch covers the front) */}
-        {[0.46, 0.58, 0.7].map((y, i) => (
-          <mesh key={i} material={mats.stripe} position={[0, y, -0.01]}>
-            <boxGeometry args={[0.435, 0.045, 0.31]} />
-          </mesh>
-        ))}
+        <mesh castShadow material={mats.base} position={[0, 0.65, 0]}>
+          <boxGeometry args={[0.4, 0.3, 0.28]} />
+        </mesh>
         {/* cream belly, front */}
         <mesh material={mats.belly} position={[0, 0.53, 0.15]}>
-          <boxGeometry args={[0.3, 0.34, 0.04]} />
+          <boxGeometry args={[0.28, 0.3, 0.04]} />
         </mesh>
+        {/* chest-fluff diamond */}
+        <mesh material={mats.belly} position={[0, 0.72, 0.135]} rotation-z={Math.PI / 4}>
+          <boxGeometry args={[0.16, 0.16, 0.05]} />
+        </mesh>
+        {/* chunky back stripes, slightly tilted */}
+        {[
+          { y: 0.5, tilt: 0.12 },
+          { y: 0.62, tilt: -0.1 },
+          { y: 0.73, tilt: 0.08 },
+        ].map((s, i) => (
+          <mesh key={i} material={mats.stripe} position={[0, s.y, -0.145]} rotation-z={s.tilt}>
+            <boxGeometry args={[0.34, 0.06, 0.05]} />
+          </mesh>
+        ))}
+        {/* zigzag flank stripes, low on the hips so the arms stay clean */}
+        {[-1, 1].map((side) =>
+          [
+            { z: -0.1, y: 0.47, tilt: 0.3 },
+            { z: 0.0, y: 0.44, tilt: -0.3 },
+            { z: 0.09, y: 0.47, tilt: 0.25 },
+          ].map((s, i) => (
+            <mesh key={`${side}${i}`} material={mats.stripe} position={[side * 0.235, s.y, s.z]} rotation-x={s.tilt}>
+              <boxGeometry args={[0.03, 0.13, 0.05]} />
+            </mesh>
+          )),
+        )}
 
         {/* head (chibi-big) */}
-        <group ref={refs.head} position={[0, 0.95, 0.02]}>
+        <group ref={refs.head} position={[0, 0.98, 0.02]}>
           <mesh castShadow material={mats.base}>
             <boxGeometry args={[0.36, 0.3, 0.3]} />
+          </mesh>
+          {/* little hair tuft */}
+          <mesh castShadow material={mats.base} position={[0.06, 0.18, 0.05]} rotation-z={-0.35}>
+            <coneGeometry args={[0.045, 0.09, 4]} />
           </mesh>
           {/* forehead "M" */}
           {[-0.05, 0, 0.05].map((x, i) => (
             <mesh key={i} material={mats.stripe} position={[x, 0.155, 0.02]} rotation-y={x * -3}>
-              <boxGeometry args={[0.025, 0.012, 0.14]} />
+              <boxGeometry args={[0.028, 0.014, 0.14]} />
             </mesh>
           ))}
-          {/* muzzle + nose */}
-          <mesh material={mats.belly} position={[0, -0.06, 0.17]}>
-            <boxGeometry args={[0.16, 0.11, 0.09]} />
+          {/* cheek fluff tufts */}
+          <mesh castShadow material={mats.base} position={[-0.2, -0.07, 0.05]} rotation-z={Math.PI / 2 + 0.5}>
+            <coneGeometry args={[0.065, 0.13, 4]} />
           </mesh>
-          <mesh material={mats.nose} position={[0, -0.025, 0.222]}>
+          <mesh castShadow material={mats.base} position={[0.2, -0.07, 0.05]} rotation-z={-Math.PI / 2 - 0.5}>
+            <coneGeometry args={[0.065, 0.13, 4]} />
+          </mesh>
+          {/* muzzle, nose, mouth, fang */}
+          <mesh material={mats.belly} position={[0, -0.06, 0.175]}>
+            <boxGeometry args={[0.17, 0.12, 0.1]} />
+          </mesh>
+          <mesh material={mats.nose} position={[0, -0.02, 0.228]}>
             <boxGeometry args={[0.05, 0.035, 0.03]} />
           </mesh>
-          {/* eyes */}
+          <mesh material={mats.stripe} position={[0, -0.065, 0.226]}>
+            <boxGeometry args={[0.014, 0.03, 0.02]} />
+          </mesh>
+          <mesh material={mats.shine} position={[0.04, -0.115, 0.2]}>
+            <boxGeometry args={[0.022, 0.035, 0.02]} />
+          </mesh>
+          {/* whisker dots — two per side, out on the cheeks */}
+          {[-1, 1].map((side) =>
+            [
+              [0.125, -0.03],
+              [0.14, -0.065],
+            ].map(([x, y], i) => (
+              <mesh key={`${side}${i}`} material={mats.stripe} position={[side * x, y, 0.152]}>
+                <boxGeometry args={[0.018, 0.018, 0.012]} />
+              </mesh>
+            )),
+          )}
+          {/* eyes + shine + brow marks */}
           {[-0.09, 0.09].map((x, i) => (
-            <mesh key={i} material={mats.eye} position={[x, 0.035, 0.155]}>
-              <boxGeometry args={[0.05, 0.06, 0.02]} />
-            </mesh>
+            <group key={i}>
+              <mesh material={mats.eye} position={[x, 0.035, 0.155]}>
+                <boxGeometry args={[0.055, 0.075, 0.02]} />
+              </mesh>
+              <mesh material={mats.shine} position={[x + 0.014, 0.058, 0.157]}>
+                <boxGeometry args={[0.018, 0.022, 0.021]} />
+              </mesh>
+              <mesh material={mats.stripe} position={[x, 0.1, 0.155]} rotation-z={x > 0 ? -0.2 : 0.2}>
+                <boxGeometry args={[0.05, 0.016, 0.02]} />
+              </mesh>
+            </group>
           ))}
-          {/* ears */}
-          <mesh ref={refs.earL} castShadow material={mats.base} position={[-0.12, 0.2, -0.02]}>
-            <coneGeometry args={[0.08, 0.16, 4]} />
+          {/* ears: splayed, dark-tipped, pink inside */}
+          <mesh ref={refs.earL} castShadow material={mats.base} position={[-0.125, 0.2, -0.02]} rotation-z={0.14}>
+            <coneGeometry args={[0.09, 0.18, 4]} />
           </mesh>
-          <mesh ref={refs.earR} castShadow material={mats.base} position={[0.12, 0.2, -0.02]}>
-            <coneGeometry args={[0.08, 0.16, 4]} />
+          <mesh ref={refs.earR} castShadow material={mats.base} position={[0.125, 0.2, -0.02]} rotation-z={-0.14}>
+            <coneGeometry args={[0.09, 0.18, 4]} />
           </mesh>
-          <mesh material={mats.earInner} position={[-0.12, 0.17, 0.015]}>
-            <coneGeometry args={[0.045, 0.09, 4]} />
+          <mesh material={mats.stripe} position={[-0.152, 0.28, -0.02]} rotation-z={0.14}>
+            <coneGeometry args={[0.032, 0.06, 4]} />
           </mesh>
-          <mesh material={mats.earInner} position={[0.12, 0.17, 0.015]}>
-            <coneGeometry args={[0.045, 0.09, 4]} />
+          <mesh material={mats.stripe} position={[0.152, 0.28, -0.02]} rotation-z={-0.14}>
+            <coneGeometry args={[0.032, 0.06, 4]} />
+          </mesh>
+          <mesh material={mats.earInner} position={[-0.118, 0.17, 0.015]} rotation-z={0.14}>
+            <coneGeometry args={[0.05, 0.1, 4]} />
+          </mesh>
+          <mesh material={mats.earInner} position={[0.118, 0.17, 0.015]} rotation-z={-0.14}>
+            <coneGeometry args={[0.05, 0.1, 4]} />
           </mesh>
         </group>
 
-        {/* tail: three chained segments with tabby rings, curling up behind */}
-        <group ref={refs.tail[0]} position={[0, 0.42, -0.16]} rotation-x={0.7}>
-          <mesh castShadow material={mats.base} position={[0, 0, -0.13]}>
-            <boxGeometry args={[0.085, 0.085, 0.26]} />
+        {/* tail: four chained segments with tabby rings and a subtle kink */}
+        <group ref={refs.tail[0]} position={[0, 0.42, -0.18]} rotation-x={0.7}>
+          <mesh castShadow material={mats.base} position={[0.01, 0, -0.12]}>
+            <boxGeometry args={[0.09, 0.09, 0.24]} />
           </mesh>
-          <group ref={refs.tail[1]} position={[0, 0, -0.26]}>
-            <mesh castShadow material={mats.stripe} position={[0, 0, -0.11]}>
-              <boxGeometry args={[0.075, 0.075, 0.22]} />
+          <group ref={refs.tail[1]} position={[0, 0, -0.24]}>
+            <mesh castShadow material={mats.stripe} position={[-0.012, 0, -0.1]}>
+              <boxGeometry args={[0.08, 0.08, 0.2]} />
             </mesh>
-            <group ref={refs.tail[2]} position={[0, 0, -0.22]}>
-              <mesh castShadow material={mats.base} position={[0, 0, -0.08]}>
-                <boxGeometry args={[0.065, 0.065, 0.16]} />
+            <group ref={refs.tail[2]} position={[0, 0, -0.2]}>
+              <mesh castShadow material={mats.base} position={[0.01, 0, -0.085]}>
+                <boxGeometry args={[0.07, 0.07, 0.17]} />
               </mesh>
-              <mesh material={mats.stripe} position={[0, 0, -0.17]}>
-                <boxGeometry args={[0.06, 0.06, 0.06]} />
+              <mesh castShadow material={mats.stripe} position={[0, 0.005, -0.21]}>
+                <boxGeometry args={[0.06, 0.06, 0.1]} />
               </mesh>
             </group>
           </group>

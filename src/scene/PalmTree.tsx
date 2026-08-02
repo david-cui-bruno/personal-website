@@ -48,6 +48,9 @@ function Trunk({ segs, color = PALETTE.palmTrunk }: { segs: ReturnType<typeof bu
   )
 }
 
+// Fronds rise out of the crown (negative base tilt), then each segment bends
+// DOWN (positive x-rotation) so the tips droop below horizontal like a real
+// palm. `droop` > 0 = heavier hang; < 0 = perkier.
 function Frond({
   angle,
   droop,
@@ -62,17 +65,17 @@ function Frond({
   color: string
 }) {
   return (
-    <group rotation-y={angle} rotation-x={-0.22 - droop} scale={[width, 1, length]}>
+    <group rotation-y={angle} rotation-x={-0.55 + droop * 0.35} scale={[width, 1, length]}>
       <mesh castShadow position={[0, 0, 0.44]}>
         <boxGeometry args={[0.24, 0.035, 0.88]} />
         <meshStandardMaterial color={color} flatShading />
       </mesh>
-      <group position={[0, 0, 0.86]} rotation-x={-0.38 - droop * 0.55}>
+      <group position={[0, 0, 0.86]} rotation-x={0.45 + droop * 0.45}>
         <mesh castShadow position={[0, 0, 0.3]}>
           <boxGeometry args={[0.18, 0.03, 0.6]} />
           <meshStandardMaterial color={color} flatShading />
         </mesh>
-        <group position={[0, 0, 0.58]} rotation-x={-0.45}>
+        <group position={[0, 0, 0.58]} rotation-x={0.5 + droop * 0.25}>
           <mesh castShadow position={[0, 0, 0.2]}>
             <boxGeometry args={[0.11, 0.025, 0.4]} />
             <meshStandardMaterial color={color} flatShading />

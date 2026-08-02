@@ -20,11 +20,12 @@ function pick<T extends string>(key: string, allowed: readonly T[]): T {
 const timeParam = params.get('time')
 
 export const DESIGN = {
-  palette: pick('palette', ['c1', 'c2', 'c3', 'c4'] as const),
+  // first entry = shipped default (David's picks)
+  palette: pick('palette', ['c2', 'c1', 'c3', 'c4'] as const),
   water: pick('water', ['b1', 'b2', 'b3', 'b4', 'a'] as const),
   tree: pick('tree', ['a', 'b', 'c', 'd', 'e'] as const),
   cat: pick('cat', ['a', 'b', 'c', 'd'] as const),
-  beacon: pick('beacon', ['a', 'b', 'c'] as const),
+  beacon: pick('beacon', ['c', 'a', 'b'] as const),
   /** frozen clock hour for previews, or null to follow real local time */
   time: timeParam !== null && Number.isFinite(Number(timeParam)) ? ((Number(timeParam) % 24) + 24) % 24 : null,
   autostart: params.has('autostart'),
@@ -95,15 +96,15 @@ export interface MoodFrame {
 const P = PALETTES[DESIGN.palette]
 
 const KEYFRAMES: MoodFrame[] = [
-  { h: 0.0, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#8fa8d6', intensity: 0.55, position: [-20, 18, -24] }, hemi: { sky: '#46557a', ground: '#23222e', intensity: 0.4 }, env: 0.12, fog: { color: '#303752', near: 26, far: 88 }, exposure: 0.92, stars: 1 },
-  { h: 5.0, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#8fa8d6', intensity: 0.55, position: [-20, 18, -24] }, hemi: { sky: '#46557a', ground: '#23222e', intensity: 0.4 }, env: 0.12, fog: { color: '#303752', near: 26, far: 88 }, exposure: 0.92, stars: 1 },
+  { h: 0.0, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#a8bce8', intensity: 1.0, position: [-20, 18, -24] }, hemi: { sky: '#5d6f9e', ground: '#3a3648', intensity: 0.6 }, env: 0.28, fog: { color: '#454e74', near: 28, far: 95 }, exposure: 1.0, stars: 1 },
+  { h: 5.0, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#a8bce8', intensity: 1.0, position: [-20, 18, -24] }, hemi: { sky: '#5d6f9e', ground: '#3a3648', intensity: 0.6 }, env: 0.28, fog: { color: '#454e74', near: 28, far: 95 }, exposure: 1.0, stars: 1 },
   { h: 6.75, sky: { sun: [70, 3, 40], turbidity: 8, rayleigh: 2.8, mie: 0.012, g: 0.82 }, sun: { color: '#ffb9a0', intensity: 1.6, position: [26, 10, 18] }, hemi: { sky: '#f6cdd4', ground: '#6f6055', intensity: 0.45 }, env: 0.35, fog: { color: '#e8c3c4', near: 31, far: 98 }, exposure: 1.02, stars: 0 },
   { h: 9.5, sky: { sun: [25, 50, -15], turbidity: 3.2, rayleigh: 1.1, mie: 0.004, g: 0.75 }, sun: { color: '#fff0d6', intensity: 2.25, position: [18, 30, -12] }, hemi: { sky: '#dcecf4', ground: '#9a8a70', intensity: 0.45 }, env: 0.4, fog: { color: '#d9e6e8', near: 35, far: 112 }, exposure: 1.02, stars: 0 },
   { h: 16.0, sky: { sun: [25, 50, -15], turbidity: 3.2, rayleigh: 1.1, mie: 0.004, g: 0.75 }, sun: { color: '#fff0d6', intensity: 2.25, position: [18, 30, -12] }, hemi: { sky: '#dcecf4', ground: '#9a8a70', intensity: 0.45 }, env: 0.4, fog: { color: '#d9e6e8', near: 35, far: 112 }, exposure: 1.02, stars: 0 },
   { h: 17.75, sky: { sun: [42, 7, -55], turbidity: 7, rayleigh: 2.4, mie: 0.009, g: 0.85 }, sun: { color: '#ffc48c', intensity: 2.4, position: [24, 13, -27] }, hemi: { sky: '#ffd9b0', ground: '#8d7458', intensity: 0.5 }, env: 0.5, fog: { color: '#f0c1a6', near: 31, far: 103 }, exposure: 1.08, stars: 0 },
   { h: 19.25, sky: { sun: [-55, 4, 70], turbidity: 9.5, rayleigh: 3.2, mie: 0.02, g: 0.82 }, sun: { color: P.sunset.sun, intensity: 2.15, position: [-22, 11, 24] }, hemi: { sky: P.sunset.hemiSky, ground: '#93786a', intensity: 0.5 }, env: 0.5, fog: { color: P.sunset.fog, near: 30, far: 97 }, exposure: 1.06, stars: 0 },
-  { h: 20.75, sky: { sun: [-45, 0.5, -70], turbidity: 8, rayleigh: 3.6, mie: 0.012, g: 0.86 }, sun: { color: '#d98ba0', intensity: 1.2, position: [-24, 10, -26] }, hemi: { sky: '#8f7ba6', ground: '#4c4350', intensity: 0.42 }, env: 0.25, fog: { color: '#8a7396', near: 28, far: 92 }, exposure: 0.98, stars: 0.35 },
-  { h: 22.25, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#8fa8d6', intensity: 0.55, position: [-20, 18, -24] }, hemi: { sky: '#46557a', ground: '#23222e', intensity: 0.4 }, env: 0.12, fog: { color: '#303752', near: 26, far: 88 }, exposure: 0.92, stars: 1 },
+  { h: 20.75, sky: { sun: [-45, 0.5, -70], turbidity: 8, rayleigh: 3.6, mie: 0.012, g: 0.86 }, sun: { color: '#d98ba0', intensity: 1.35, position: [-24, 10, -26] }, hemi: { sky: '#8f7ba6', ground: '#4c4350', intensity: 0.5 }, env: 0.3, fog: { color: '#8a7396', near: 28, far: 92 }, exposure: 1.0, stars: 0.35 },
+  { h: 22.25, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#a8bce8', intensity: 1.0, position: [-20, 18, -24] }, hemi: { sky: '#5d6f9e', ground: '#3a3648', intensity: 0.6 }, env: 0.28, fog: { color: '#454e74', near: 28, far: 95 }, exposure: 1.0, stars: 1 },
 ]
 
 // -- tiny color/number lerp helpers (no three.js in this bundle) --
