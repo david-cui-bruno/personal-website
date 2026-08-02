@@ -3,7 +3,10 @@
 // Optional env var: RESEND_API_KEY (resend.com — free tier is plenty).
 // Without it this returns 501 and the client falls back to a mailto link.
 
-const TO = 'davidcui824@gmail.com'
+// Resend test mode (onboarding@resend.dev sender) can only deliver to the
+// Resend account owner's address. To route elsewhere, verify a domain at
+// resend.com/domains and update the `from` below.
+const TO = 'david@framewisehealth.com'
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
