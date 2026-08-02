@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { terrainHeight } from '../../lib/terrain'
 import { ITEMS, type IslandItem } from '../../config/content'
+import { DESIGN } from '../../config/design'
 import { catPosition, useGame } from '../../state/store'
 import { Chest } from './Chest'
 import { MedKit } from './MedKit'
@@ -52,11 +53,26 @@ function ItemAnchor({ item }: { item: IslandItem }) {
       onPointerOut={() => (document.body.style.cursor = 'auto')}
     >
       {MODELS[item.id]}
-      {/* golden beacon until discovered — unfogged + overbright so it blooms
-          and reads across the island */}
+      {/* beacon until discovered — unfogged + overbright so it blooms and
+          reads across the island. Style variants via ?beacon= (design.ts). */}
+      {!discovered && DESIGN.beacon === 'b' && (
+        <mesh position={[0, 1.15, 0]}>
+          <cylinderGeometry args={[0.05, 0.1, 2.3, 8, 1, true]} />
+          <meshBasicMaterial
+            color={[1.7, 1.4, 0.8] as unknown as THREE.Color}
+            transparent
+            opacity={0.3}
+            toneMapped={false}
+            fog={false}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
       {!discovered && (
         <mesh ref={marker} position={[0, 1.7, 0]}>
-          <octahedronGeometry args={[0.2, 0]} />
+          {DESIGN.beacon === 'c' ? <sphereGeometry args={[0.17, 12, 10]} /> : <octahedronGeometry args={[DESIGN.beacon === 'b' ? 0.13 : 0.2, 0]} />}
           <meshBasicMaterial color={[2.2, 1.9, 1.1] as unknown as THREE.Color} toneMapped={false} fog={false} />
         </mesh>
       )}

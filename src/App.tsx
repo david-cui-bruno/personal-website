@@ -1,8 +1,9 @@
-import { Component, lazy, Suspense, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react'
 import { HUD } from './ui/HUD'
 import { Panels } from './ui/Panels'
 import { Joystick } from './ui/Joystick'
 import { Intro } from './ui/Intro'
+import { DESIGN } from './config/design'
 import { useGame } from './state/store'
 
 // keeps three.js and friends out of the first-paint bundle
@@ -35,6 +36,11 @@ class WorldBoundary extends Component<{ children: ReactNode }, { failed: boolean
 
 export default function App() {
   const started = useGame((s) => s.started)
+
+  // design-shot harness: skip the intro
+  useEffect(() => {
+    if (DESIGN.autostart) useGame.getState().start()
+  }, [])
 
   return (
     <>

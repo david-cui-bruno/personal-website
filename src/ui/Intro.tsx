@@ -1,6 +1,7 @@
 import { useGame } from '../state/store'
 import { startAudio } from '../lib/audio'
 import { ITEMS } from '../config/content'
+import { DESIGN } from '../config/design'
 
 const isTouch = typeof window !== 'undefined' && matchMedia('(pointer: coarse)').matches
 
@@ -9,7 +10,7 @@ export function Intro() {
   const start = useGame((s) => s.start)
   const muted = useGame((s) => s.muted)
 
-  if (started) return null
+  if (started || DESIGN.autostart) return null
 
   const begin = () => {
     if (!muted) startAudio() // must happen inside the click (autoplay policy)

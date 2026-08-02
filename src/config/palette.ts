@@ -1,15 +1,17 @@
+import { MOOD, CAT } from './design'
+
 export const PALETTE = {
-  // world
-  sandDry: '#e9d29c',
-  sandWet: '#c9ad76',
-  grass: '#88b060',
-  grassDeep: '#6d9a4e',
-  underwaterSand: '#b3986b',
-  waterNear: '#5ed3c4',
-  waterFar: '#1e7f9e',
+  // world colors come from the active mood preset (see design.ts)
+  sandDry: MOOD.ground.sandDry,
+  sandWet: MOOD.ground.sandWet,
+  grass: MOOD.ground.grass,
+  grassDeep: MOOD.ground.grassDeep,
+  underwaterSand: MOOD.ground.underwaterSand,
+  waterNear: MOOD.water.near,
+  waterFar: MOOD.water.far,
   foam: '#fff6e8',
-  fogColor: '#f2bd8d',
-  sunLight: '#ffc98f',
+  fogColor: MOOD.fog.color,
+  sunLight: MOOD.sun.color,
 
   // props
   palmTrunk: '#96653c',
@@ -20,13 +22,5 @@ export const PALETTE = {
   rock: '#9b9284',
 } as const
 
-// Bebo, David's tabby. Tune these to match the real one
-// (e.g. more orange: base #d99147, stripe #a65e2b).
-export const TABBY = {
-  base: '#a68d70',
-  stripe: '#63503e',
-  belly: '#f4ecdf',
-  earInner: '#dda49b',
-  nose: '#c76d64',
-  eye: '#3a5a34',
-} as const
+// Bebo, David's tabby. The active colorway comes from design.ts (?cat=a|b|c|d).
+export const TABBY = CAT

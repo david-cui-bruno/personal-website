@@ -6,6 +6,7 @@ import { terrainHeight, WALKABLE_MIN_HEIGHT } from '../lib/terrain'
 import { ITEMS, EXTRA_COLLIDERS } from '../config/content'
 import { catPosition, joystick, useGame } from '../state/store'
 import { TABBY } from '../config/palette'
+import { DESIGN } from '../config/design'
 import { setAudioLevels } from '../lib/audio'
 
 const WALK_SPEED = 3.2
@@ -277,8 +278,8 @@ export function PlayerCat({ controls }: { controls: RefObject<CameraControls | n
     }
     g.rotation.y = heading.current
 
-    // ---- camera follow
-    controls.current?.moveTo(g.position.x, g.position.y + 0.7, g.position.z, true)
+    // ---- camera follow (disabled when a fixed design-shot camera is set)
+    if (!DESIGN.cam) controls.current?.moveTo(g.position.x, g.position.y + 0.7, g.position.z, true)
 
     // ---- ambient audio levels (throttled)
     audioClock.current += dt

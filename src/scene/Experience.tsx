@@ -15,7 +15,7 @@ import { Scatter } from './Scatter'
 import { PlayerCat } from './PlayerCat'
 import { ItemsHost } from './items/ItemsHost'
 import { PALMS } from '../config/content'
-import { PALETTE } from '../config/palette'
+import { DESIGN, MOOD } from '../config/design'
 import { useGame } from '../state/store'
 
 type Controls = ComponentRef<typeof CameraControls>
@@ -26,8 +26,14 @@ export function Experience() {
   const setQuality = useGame((s) => s.setQuality)
 
   useEffect(() => {
-    // start behind the spawn point, looking inland at the island
-    controls.current?.setLookAt(0, 4.6, 30, 0, 1.2, 18, false)
+    const cam = DESIGN.cam?.split(',').map(Number)
+    if (cam && cam.length === 6 && cam.every(Number.isFinite)) {
+      // fixed camera for design screenshots
+      controls.current?.setLookAt(cam[0], cam[1], cam[2], cam[3], cam[4], cam[5], false)
+    } else {
+      // start behind the spawn point, looking inland at the island
+      controls.current?.setLookAt(0, 4.6, 30, 0, 1.2, 18, false)
+    }
     // keep the camera from diving inside the hill
     if (controls.current && terrainCollider.current) {
       controls.current.colliderMeshes = [terrainCollider.current]
@@ -36,18 +42,23 @@ export function Experience() {
 
   return (
     <>
-      {/* golden hour */}
-      <Sky sunPosition={[45, 5, -60]} turbidity={7.5} rayleigh={2.6} mieCoefficient={0.008} mieDirectionalG={0.85} />
-      <Environment frames={1} resolution={128} background={false} environmentIntensity={0.55}>
+      <Sky
+        sunPosition={MOOD.sky.sunPosition}
+        turbidity={MOOD.sky.turbidity}
+        rayleigh={MOOD.sky.rayleigh}
+        mieCoefficient={MOOD.sky.mieCoefficient}
+        mieDirectionalG={MOOD.sky.mieDirectionalG}
+      />
+      <Environment frames={1} resolution={128} background={false} environmentIntensity={MOOD.envIntensity}>
         <Lightformer form="circle" intensity={4} color="#ffb26b" position={[8, 2, -10]} scale={12} />
         <Lightformer intensity={1.1} color="#ffe6c7" position={[0, 10, 0]} rotation-x={Math.PI / 2} scale={[30, 30, 1]} />
         <Lightformer intensity={0.5} color="#8fb8d8" position={[-10, 4, 8]} rotation-y={Math.PI / 2} scale={[20, 8, 1]} />
       </Environment>
       <directionalLight
         castShadow
-        color={PALETTE.sunLight}
-        intensity={2.6}
-        position={[26, 14, -30]}
+        color={MOOD.sun.color}
+        intensity={MOOD.sun.intensity}
+        position={MOOD.sun.position}
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-24}
         shadow-camera-right={24}
@@ -57,8 +68,8 @@ export function Experience() {
         shadow-camera-far={90}
         shadow-normalBias={0.04}
       />
-      <hemisphereLight color="#ffd7a8" groundColor="#9a7c58" intensity={0.5} />
-      <fog attach="fog" args={[PALETTE.fogColor, 45, 150]} />
+      <hemisphereLight color={MOOD.hemi.sky} groundColor={MOOD.hemi.ground} intensity={MOOD.hemi.intensity} />
+      <fog attach="fog" args={[MOOD.fog.color, MOOD.fog.near, MOOD.fog.far]} />
 
       {/* the island */}
       <Terrain />
@@ -82,7 +93,7 @@ export function Experience() {
         maxPolarAngle={1.42}
       />
 
-      <PerformanceMonitor onDecline={() => setQuality(0)} flipflops={2} />
+      {!DESIGN.lockQuality && <PerformanceMonitor onDecline={() => setQuality(0)} flipflops={2} />}
       <EffectComposer multisampling={quality > 0 ? 4 : 0}>
         {quality > 0 ? (
           <N8AO quality="medium" halfRes aoRadius={1.1} intensity={2} distanceFalloff={1} />
