@@ -38,8 +38,12 @@ export function Joystick() {
       ref={base}
       className="joystick"
       onPointerDown={(e) => {
-        e.currentTarget.setPointerCapture(e.pointerId)
         update(e)
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId)
+        } catch {
+          /* synthetic/expired pointers can't be captured — dragging still works */
+        }
       }}
       onPointerMove={(e) => joystick.active && update(e)}
       onPointerUp={reset}

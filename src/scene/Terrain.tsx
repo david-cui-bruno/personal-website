@@ -49,6 +49,11 @@ void main() {
 }
 `
 
+// Coarse invisible copy of the island used by CameraControls as a collision
+// mesh, so the camera can't dive inside the hill. ~1k tris keeps the per-frame
+// raycasts cheap.
+export const terrainCollider: { current: THREE.Mesh | null } = { current: null }
+
 export function Terrain() {
   const matRef = useRef<{ uniforms: Record<string, THREE.IUniform> }>(null)
 
@@ -60,6 +65,16 @@ export function Terrain() {
       pos.setY(i, terrainHeight(pos.getX(i), pos.getZ(i)))
     }
     geo.computeVertexNormals()
+    return geo
+  }, [])
+
+  const colliderGeometry = useMemo(() => {
+    const geo = new THREE.PlaneGeometry(64, 64, 24, 24)
+    geo.rotateX(-Math.PI / 2)
+    const pos = geo.attributes.position
+    for (let i = 0; i < pos.count; i++) {
+      pos.setY(i, terrainHeight(pos.getX(i), pos.getZ(i)))
+    }
     return geo
   }, [])
 
@@ -81,17 +96,28 @@ export function Terrain() {
   })
 
   return (
-    <mesh geometry={geometry} receiveShadow>
-      <CustomShaderMaterial
-        ref={matRef as never}
-        baseMaterial={THREE.MeshStandardMaterial}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        uniforms={uniforms}
-        flatShading
-        roughness={0.95}
-        metalness={0}
-      />
-    </mesh>
+    <>
+      <mesh geometry={geometry} receiveShadow>
+        <CustomShaderMaterial
+          ref={matRef as never}
+          baseMaterial={THREE.MeshStandardMaterial}
+          vertexShader={vertexShader}
+          fragmentShader={fragmentShader}
+          uniforms={uniforms}
+          flatShading
+          roughness={0.95}
+          metalness={0}
+        />
+      </mesh>
+      <mesh
+        ref={(m) => {
+          terrainCollider.current = m
+        }}
+        geometry={colliderGeometry}
+        visible={false}
+      >
+        <meshBasicMaterial />
+      </mesh>
+    </>
   )
 }

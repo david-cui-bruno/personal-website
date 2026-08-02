@@ -71,7 +71,7 @@ const PROJECTS: Project[] = [
   },
   {
     name: 'Pokémon TCG Pocket RL',
-    blurb: 'A reinforcement-learning agent that teaches itself Pokémon TCG Pocket.',
+    blurb: 'A reinforcement-learning agent that teaches itself the card game.',
     url: 'https://github.com/david-cui-bruno/pokemontcgpocketRL',
     tags: ['Python', 'RL'],
   },
@@ -111,7 +111,7 @@ function SpotifyEmbed({ type, id, compact }: { type: string; id: string; compact
   const cleanId = id.includes('/') ? (id.split('?')[0].split('/').pop() ?? id) : id
   return (
     <iframe
-      title={`spotify-${type}-${cleanId}`}
+      title={`Spotify ${type} player`}
       src={`https://open.spotify.com/embed/${type}/${cleanId}?theme=0`}
       width="100%"
       height={compact ? 152 : 352}
@@ -125,7 +125,7 @@ function SpotifyEmbed({ type, id, compact }: { type: string; id: string; compact
 
 export const PANEL_CONTENT: Record<string, { heading: string; body: ReactNode }> = {
   projects: {
-    heading: 'Things I built',
+    heading: 'Things David built',
     body: (
       <>
         <p className="panel-intro">
@@ -158,7 +158,7 @@ export const PANEL_CONTENT: Record<string, { heading: string; body: ReactNode }>
           A first-aid kit — of course he'd bring one. David co-founded{' '}
           <strong>Framewise Health</strong>, a Y&nbsp;Combinator-backed healthcare company.
         </p>
-        <p>We built software for clinics: a patient-facing mobile app and a physician CRM.</p>
+        <p>Framewise built software for clinics: a patient-facing mobile app and a physician CRM.</p>
         <p>
           <a href="https://github.com/david-cui-bruno/framewise-mobile" target="_blank" rel="noreferrer">
             patient app ↗
@@ -209,7 +209,7 @@ export const PANEL_CONTENT: Record<string, { heading: string; body: ReactNode }>
           </a>{' '}
           in Dallas. Go eat there.
         </p>
-        <h3>Where I've eaten</h3>
+        <h3>Where he's eaten</h3>
         {BELI_URL ? (
           <p>
             Every meal gets rated on{' '}
@@ -221,7 +221,7 @@ export const PANEL_CONTENT: Record<string, { heading: string; body: ReactNode }>
         ) : (
           <p>Every meal gets rated on Beli.</p>
         )}
-        <h3>Dishes I'll defend with my life</h3>
+        <h3>Dishes he'd defend with his life</h3>
         <ul>
           <li>Soba</li>
           <li>Black tea (it counts)</li>
@@ -250,7 +250,7 @@ export const PANEL_CONTENT: Record<string, { heading: string; body: ReactNode }>
             GitHub ↗
           </a>{' '}
           ·{' '}
-          <a href="mailto:davidcui824@gmail.com">email ↗</a>
+          <a href="mailto:davidcui824@gmail.com">email</a>
         </p>
         <p className="panel-intro">
           Want to say hi properly? There's an empty bottle down at the waterline.

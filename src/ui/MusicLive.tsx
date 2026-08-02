@@ -8,6 +8,7 @@ interface Track {
 }
 
 interface Album {
+  id?: string
   name: string
   artist: string
   image: string | null
@@ -25,22 +26,28 @@ interface SpotifyData {
 // until data arrives, and nothing at all if the endpoint isn't set up —
 // the panel works fine without it (e.g. local dev).
 export function MusicLive() {
-  const [data, setData] = useState<SpotifyData | null>(null)
+  const [data, setData] = useState<SpotifyData | 'error' | null>(null)
 
   useEffect(() => {
     let alive = true
     fetch('/api/spotify')
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((d: SpotifyData) => {
-        if (alive && (d.nowPlaying || d.lastPlayed || d.topArtists?.length || d.topAlbums?.length)) setData(d)
+        if (!alive) return
+        if (d.nowPlaying || d.lastPlayed || d.topArtists?.length || d.topAlbums?.length) setData(d)
+        else setData('error')
       })
-      .catch(() => {})
+      .catch(() => alive && setData('error'))
     return () => {
       alive = false
     }
   }, [])
 
-  if (!data) return null
+  if (data === null) return null
+  if (data === 'error') {
+    // so the panel never renders as one orphaned sentence
+    return <p className="panel-intro">The speaker lost signal — come back later and it'll be playing again.</p>
+  }
   const track = data.nowPlaying ?? data.lastPlayed
   const live = Boolean(data.nowPlaying)
 
@@ -63,7 +70,13 @@ export function MusicLive() {
           <h3>Albums on repeat lately</h3>
           <div className="album-grid">
             {data.topAlbums!.map((a) => (
-              <a key={a.name + a.artist} href={a.url ?? undefined} target="_blank" rel="noreferrer" className="album-card">
+              <a
+                key={a.id ?? a.name + a.artist}
+                href={a.url ?? undefined}
+                target="_blank"
+                rel="noreferrer"
+                className="album-card"
+              >
                 {a.image && <img src={a.image} alt="" loading="lazy" />}
                 <b>{a.name}</b>
                 <span>{a.artist}</span>
@@ -74,7 +87,7 @@ export function MusicLive() {
       )}
       {data.topArtists.length > 0 && (
         <>
-          <h3>On repeat</h3>
+          <h3>Artists on repeat</h3>
           <div className="artist-chips">
             {data.topArtists.map((a) => (
               <a key={a.name} href={a.url ?? undefined} target="_blank" rel="noreferrer">

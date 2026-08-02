@@ -1,5 +1,6 @@
 import { useGame } from '../state/store'
 import { startAudio } from '../lib/audio'
+import { ITEMS } from '../config/content'
 
 const isTouch = typeof window !== 'undefined' && matchMedia('(pointer: coarse)').matches
 
@@ -21,14 +22,14 @@ export function Intro() {
         <p className="intro-kicker">you wash ashore on</p>
         <h1>David's Island</h1>
         <p className="intro-flavor">
-          Nobody's home — well, Bebo is. Wander around and find the things David would bring to a
-          deserted island. There are four of them.
+          Nobody's home — well, you are. You're Bebo, David's cat. Wander around and find the things
+          David would bring to a deserted island. There are {ITEMS.length} of them.
         </p>
         <button className="intro-start" onClick={begin}>
           look around 🐾
         </button>
         <p className="intro-controls">
-          {isTouch ? 'joystick to walk · drag to look · tap things to open them' : 'WASD to walk · drag to look · E to interact · shift to trot'}
+          {isTouch ? 'joystick to walk · drag to look · walk up & tap open' : 'WASD to walk · drag to look · E to interact · shift to trot'}
         </p>
       </div>
     </div>

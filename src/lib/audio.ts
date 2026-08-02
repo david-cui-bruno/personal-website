@@ -40,6 +40,8 @@ export function startAudio() {
     window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!AC) return
   ctx = new AC()
+  // iOS Safari can hand out an already-suspended context even inside a gesture
+  void ctx.resume()
   master = ctx.createGain()
   master.gain.value = isMuted() ? 0 : 0.55
   master.connect(ctx.destination)
@@ -95,7 +97,8 @@ export function startAudio() {
   crackleSrc.connect(crackleBP).connect(crackleGain).connect(fireGain)
   crackleSrc.start()
   crackleTimer = setInterval(() => {
-    if (!ctx || !crackleGain) return
+    // no-op while suspended/muted so gain-automation events don't pile up
+    if (!ctx || ctx.state !== 'running' || !crackleGain) return
     if (Math.random() < 0.34) {
       const t = ctx.currentTime
       crackleGain.gain.setTargetAtTime(0.35 + Math.random() * 0.5, t, 0.004)
@@ -122,7 +125,15 @@ export function setMuted(muted: boolean) {
     return
   }
   if (master) master.gain.setTargetAtTime(muted ? 0 : 0.55, ctx.currentTime, 0.08)
-  if (!muted && ctx.state === 'suspended') void ctx.resume()
+  if (muted) {
+    // fully suspend after the fade so a muted tab burns no audio cycles
+    const c = ctx
+    setTimeout(() => {
+      if (isMuted()) void c.suspend()
+    }, 300)
+  } else if (ctx.state === 'suspended') {
+    void ctx.resume()
+  }
 }
 
 /** Called from the game loop: surf ∈ [0,1]-ish, fire ∈ [0,1]. */

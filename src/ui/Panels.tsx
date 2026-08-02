@@ -1,18 +1,31 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { ITEMS, PANEL_CONTENT } from '../config/content'
 import { useGame } from '../state/store'
 
 export function Panels() {
   const activePanel = useGame((s) => s.activePanel)
   const closePanel = useGame((s) => s.closePanel)
+  const closeButton = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'Escape') closePanel()
+      if (e.code !== 'Escape') return
+      // first Escape while typing just leaves the field (protects form drafts)
+      const el = document.activeElement
+      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+        el.blur()
+        return
+      }
+      closePanel()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [closePanel])
+
+  // move focus into the dialog when it opens
+  useEffect(() => {
+    if (activePanel) closeButton.current?.focus()
+  }, [activePanel])
 
   if (!activePanel) return null
   const item = ITEMS.find((i) => i.id === activePanel)
@@ -21,11 +34,19 @@ export function Panels() {
 
   return (
     <div className="panel-backdrop" onClick={closePanel}>
-      <section className="panel" onClick={(e) => e.stopPropagation()}>
+      <section
+        className="panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="panel-heading"
+        onClick={(e) => e.stopPropagation()}
+      >
         <header>
-          <span className="panel-emoji">{item.emoji}</span>
-          <h2>{content.heading}</h2>
-          <button className="panel-close" onClick={closePanel} aria-label="close">
+          <span className="panel-emoji" aria-hidden="true">
+            {item.emoji}
+          </span>
+          <h2 id="panel-heading">{content.heading}</h2>
+          <button ref={closeButton} className="panel-close" onClick={closePanel} aria-label="Close panel">
             ✕
           </button>
         </header>

@@ -202,7 +202,8 @@ export function PlayerCat({ controls }: { controls: RefObject<CameraControls | n
     const g = root.current
     if (!g) return
 
-    if (!useGame.getState().started) {
+    const { started, activePanel } = useGame.getState()
+    if (!started) {
       catPosition.x = g.position.x
       catPosition.y = g.position.y
       catPosition.z = g.position.z
@@ -210,9 +211,11 @@ export function PlayerCat({ controls }: { controls: RefObject<CameraControls | n
     }
 
     // ---- input (keyboard + joystick), camera-relative
+    // ignored while a panel is open, so typing "wasd" in the contact form
+    // doesn't send Bebo wandering off
     const keys = getKeys() as Record<string, boolean>
-    let ix = (keys.right ? 1 : 0) - (keys.left ? 1 : 0) + joystick.x
-    let iy = (keys.forward ? 1 : 0) - (keys.back ? 1 : 0) + joystick.y
+    let ix = activePanel ? 0 : (keys.right ? 1 : 0) - (keys.left ? 1 : 0) + joystick.x
+    let iy = activePanel ? 0 : (keys.forward ? 1 : 0) - (keys.back ? 1 : 0) + joystick.y
     const ilen = Math.hypot(ix, iy)
     if (ilen > 1) {
       ix /= ilen

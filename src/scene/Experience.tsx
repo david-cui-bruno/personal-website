@@ -8,7 +8,7 @@ import {
   Sparkles,
 } from '@react-three/drei'
 import { EffectComposer, N8AO, Bloom, Vignette } from '@react-three/postprocessing'
-import { Terrain } from './Terrain'
+import { Terrain, terrainCollider } from './Terrain'
 import { Water } from './Water'
 import { PalmTree } from './PalmTree'
 import { Scatter } from './Scatter'
@@ -28,6 +28,10 @@ export function Experience() {
   useEffect(() => {
     // start behind the spawn point, looking inland at the island
     controls.current?.setLookAt(0, 4.6, 30, 0, 1.2, 18, false)
+    // keep the camera from diving inside the hill
+    if (controls.current && terrainCollider.current) {
+      controls.current.colliderMeshes = [terrainCollider.current]
+    }
   }, [])
 
   return (

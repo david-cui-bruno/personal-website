@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 
-type Status = 'idle' | 'sending' | 'sent' | 'mailto'
+type Status = 'idle' | 'sending' | 'sent' | 'mailto' | 'slow'
 
 // The contact form inside the message-in-a-bottle panel. Tries /api/bottle
 // (Resend-backed Vercel function); if that isn't configured it falls back to
@@ -9,6 +9,7 @@ export function BottlePanel() {
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState('')
   const [from, setFrom] = useState('')
+  const honeypot = useRef<HTMLInputElement>(null)
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -18,10 +19,12 @@ export function BottlePanel() {
     const res = await fetch('/api/bottle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: from.trim(), message: msg, website: '' }),
+      body: JSON.stringify({ from: from.trim(), message: msg, website: honeypot.current?.value ?? '' }),
     }).catch(() => null)
     if (res?.ok) {
       setStatus('sent')
+    } else if (res?.status === 429) {
+      setStatus('slow')
     } else {
       // no serverless function (or it failed) — hand off to the mail app
       const body = msg + (from.trim() ? `\n\n— ${from.trim()}` : '')
@@ -55,6 +58,7 @@ export function BottlePanel() {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Dear David…"
+        aria-label="your message"
         rows={5}
         maxLength={2000}
         required
@@ -63,15 +67,22 @@ export function BottlePanel() {
         value={from}
         onChange={(e) => setFrom(e.target.value)}
         placeholder="who's it from? email or name (optional)"
+        aria-label="who the message is from (optional)"
         maxLength={200}
       />
       {/* honeypot — humans never see this */}
-      <input className="bottle-hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+      <input ref={honeypot} className="bottle-hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
       <button type="submit" disabled={status === 'sending' || !message.trim()}>
         {status === 'sending' ? 'corking the bottle…' : 'throw it into the sea 🌊'}
       </button>
       {status === 'mailto' && (
-        <p className="panel-intro">Opened your mail app instead — hit send there and it'll reach him.</p>
+        <p className="panel-intro">
+          Couldn't send it through the tide — if your mail app didn't open, email{' '}
+          <a href="mailto:davidcui824@gmail.com">davidcui824@gmail.com</a> (your note is still written above).
+        </p>
+      )}
+      {status === 'slow' && (
+        <p className="panel-intro">The tide's busy — give it a minute and throw again.</p>
       )}
     </form>
   )

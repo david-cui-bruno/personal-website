@@ -8,7 +8,7 @@
   --paper: #fdf6e9;
   --paper-deep: #f4e8d2;
   --ink: #4a3b2c;
-  --ink-soft: #8a7455;
+  --ink-soft: #756043; /* AA contrast on both paper tones */
   --accent: #e07a3f;
   --gold: #f0b840;
   font-family: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -172,7 +172,7 @@ canvas {
   border-radius: 999px;
   color: #fff8ec;
   font-size: 15px;
-  animation: rise-in 0.25s ease;
+  animation: prompt-in 0.25s ease;
 }
 
 .hud-prompt kbd {
@@ -218,7 +218,7 @@ canvas {
   border-radius: 999px;
   font-size: 15px;
   box-shadow: 0 10px 34px rgba(60, 30, 8, 0.35);
-  animation: toast 2.6s ease forwards;
+  animation: toast 3.2s ease forwards;
 }
 
 /* ---------- panels ---------- */
@@ -305,14 +305,6 @@ canvas {
 .panel-intro {
   color: var(--ink-soft);
   margin-bottom: 12px;
-}
-
-.todo {
-  background: #fff3c4;
-  border-radius: 6px;
-  padding: 1px 6px;
-  font-size: 13px;
-  color: #7a5c00;
 }
 
 .project-list {
@@ -623,11 +615,6 @@ canvas {
   }
 }
 
-.hud-prompt {
-  transform: translateX(-50%);
-  animation: prompt-in 0.25s ease;
-}
-
 @keyframes prompt-in {
   from {
     opacity: 0;
@@ -639,16 +626,17 @@ canvas {
   }
 }
 
+/* duration must match TOAST_MS in src/ui/HUD.tsx */
 @keyframes toast {
   0% {
     opacity: 0;
     transform: translate(-50%, -12px);
   }
-  10% {
+  8% {
     opacity: 1;
     transform: translate(-50%, 0);
   }
-  85% {
+  88% {
     opacity: 1;
   }
   100% {
@@ -666,5 +654,35 @@ canvas {
   }
   .intro-card h1 {
     font-size: 32px;
+  }
+}
+
+/* keep the title and progress pill from colliding on narrow phones */
+@media (max-width: 420px) {
+  .hud-progress {
+    font-size: 13px;
+    gap: 4px;
+    padding: 7px 10px;
+  }
+  .hud-progress b {
+    font-size: 12px;
+  }
+  .hud-title p {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .hud-title,
+  .hud-progress,
+  .hud-mute,
+  .hud-prompt,
+  .hud-interact,
+  .hud-toast,
+  .panel,
+  .panel-backdrop,
+  .np-label-live {
+    animation: none;
   }
 }

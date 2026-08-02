@@ -26,6 +26,7 @@ function ItemAnchor({ item }: { item: IslandItem }) {
   const near = useGame((s) => s.nearItemId === item.id)
   const discovered = useGame((s) => s.discovered.includes(item.id))
   const openPanel = useGame((s) => s.openPanel)
+  const setHint = useGame((s) => s.setHint)
 
   const [x, z] = item.position
   const y = terrainHeight(x, z)
@@ -46,21 +47,22 @@ function ItemAnchor({ item }: { item: IslandItem }) {
   return (
     <group
       position={[x, y, z]}
-      onClick={() => near && openPanel(item.id)}
-      onPointerOver={() => near && (document.body.style.cursor = 'pointer')}
+      onClick={() => (near ? openPanel(item.id) : setHint('walk closer to open it'))}
+      onPointerOver={() => (document.body.style.cursor = 'pointer')}
       onPointerOut={() => (document.body.style.cursor = 'auto')}
     >
       {MODELS[item.id]}
-      {/* golden beacon until discovered */}
+      {/* golden beacon until discovered — unfogged + overbright so it blooms
+          and reads across the island */}
       {!discovered && (
         <mesh ref={marker} position={[0, 1.7, 0]}>
           <octahedronGeometry args={[0.2, 0]} />
-          <meshBasicMaterial color="#ffe58f" toneMapped={false} />
+          <meshBasicMaterial color={[2.2, 1.9, 1.1] as unknown as THREE.Color} toneMapped={false} fog={false} />
         </mesh>
       )}
       {/* ground ring, pulses when the cat is close */}
       <mesh ref={ring} position={[0, 0.06, 0]} rotation-x={-Math.PI / 2}>
-        <ringGeometry args={[item.interactRadius * 0.32, item.interactRadius * 0.4, 40]} />
+        <ringGeometry args={[item.interactRadius * 0.48, item.interactRadius * 0.56, 40]} />
         <meshBasicMaterial color="#ffe9ad" transparent opacity={0.2} toneMapped={false} depthWrite={false} />
       </mesh>
     </group>

@@ -52,6 +52,7 @@ function aggregateAlbums(topTracks: any) {
     const al = t.album
     if (!al?.id) continue
     const entry = map.get(al.id) ?? {
+      id: al.id,
       name: al.name,
       artist: al.artists?.[0]?.name ?? '',
       image: al.images?.[1]?.url ?? al.images?.[0]?.url ?? null,
@@ -67,10 +68,14 @@ function aggregateAlbums(topTracks: any) {
   const albumsOnly = ranked.filter((a) => a.type === 'album')
   return (albumsOnly.length >= 3 ? albumsOnly : ranked)
     .slice(0, 6)
-    .map(({ name, artist, image, url }) => ({ name, artist, image, url }))
+    .map(({ id, name, artist, image, url }) => ({ id, name, artist, image, url }))
 }
 
-export default async function handler(_req: any, res: any) {
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'GET') {
+    res.status(405).json({ error: 'method not allowed' })
+    return
+  }
   try {
     const token = await getAccessToken()
     const [current, recent, top, topTracks] = await Promise.all([
@@ -89,7 +94,7 @@ export default async function handler(_req: any, res: any) {
     const topAlbums = aggregateAlbums(topTracks)
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
     res.status(200).json({ nowPlaying, lastPlayed, topArtists, topAlbums })
-  } catch (e: any) {
-    res.status(500).json({ error: e?.message ?? 'unknown' })
+  } catch {
+    res.status(500).json({ error: 'unavailable' })
   }
 }
