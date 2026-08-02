@@ -3,10 +3,11 @@
 // Optional env var: RESEND_API_KEY (resend.com — free tier is plenty).
 // Without it this returns 501 and the client falls back to a mailto link.
 
-// Resend test mode (onboarding@resend.dev sender) can only deliver to the
-// Resend account owner's address. To route elsewhere, verify a domain at
-// resend.com/domains and update the `from` below.
-const TO = 'david@framewisehealth.com'
+// Sends from the Resend account's verified domain (send.framewisehealth.com),
+// which allows delivery to any recipient. Override the recipient with the
+// BOTTLE_TO env var if it should ever change.
+const FROM = "David's Island <island@send.framewisehealth.com>"
+const TO = process.env.BOTTLE_TO ?? 'davidcui824@gmail.com'
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -30,12 +31,15 @@ export default async function handler(req: any, res: any) {
     return
   }
   const sender = String(from).slice(0, 200).trim()
+  // if the visitor left an email address, wire it as reply-to
+  const replyTo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sender) ? sender : undefined
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: "David's Island <onboarding@resend.dev>",
+      from: FROM,
       to: [TO],
+      ...(replyTo ? { reply_to: replyTo } : {}),
       subject: '🍾 A bottle washed ashore',
       text: msg + (sender ? `\n\n— from: ${sender}` : '\n\n— unsigned'),
     }),
