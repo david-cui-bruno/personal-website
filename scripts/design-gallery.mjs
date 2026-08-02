@@ -92,7 +92,7 @@ async function shoot(page, query, cam, file) {
   await page.waitForSelector('canvas', { timeout: 20000 })
   await page.addStyleTag({ content: HIDE_HUD })
   await page.waitForTimeout(3200)
-  await page.screenshot({ path: `${OUT}/img/${file}.png` })
+  await page.screenshot({ path: `${OUT}/img/${file}.jpg`, type: 'jpeg', quality: 85 })
   console.log('shot', file)
 }
 
@@ -123,7 +123,7 @@ const section = (sec) => `
         ([val, label, note]) => `
     <label class="card">
       <input type="radio" name="${sec.key}" value="${val}" ${val === 'a' ? 'checked' : ''}>
-      <img src="img/${sec.key}-${val}.png" alt="${label}" loading="lazy">
+      <img src="img/${sec.key}-${val}.jpg" alt="${label}" loading="lazy">
       <div class="meta">
         <b>${val.toUpperCase()} — ${label}</b>
         <span>${note}</span>
@@ -157,7 +157,17 @@ const html = `<!doctype html>
   .combos .card { pointer-events: auto; }
   .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paper); box-shadow: 0 -8px 30px rgba(80,45,15,.18); padding: 14px 5vw; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
   .bar button { background: var(--accent); color: #fff; border: 0; border-radius: 999px; padding: 11px 22px; font: inherit; font-weight: 700; cursor: pointer; }
-  #picks { font-family: ui-monospace, monospace; font-size: 14px; background: #f1e4c8; padding: 8px 14px; border-radius: 10px; }
+  #picks { font-family: ui-monospace, monospace; font-size: 14px; background: #f1e4c8; padding: 8px 14px; border-radius: 10px; word-break: break-all; }
+  @media (max-width: 640px) {
+    body { padding: 24px 16px 150px; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 19px; margin-top: 34px; }
+    .grid { grid-template-columns: 1fr; gap: 14px; }
+    .card input { transform: scale(1.7); top: 14px; left: 14px; }
+    .meta a { padding: 6px 0; display: inline-block; }
+    .bar { padding: 12px 16px; gap: 10px; }
+    .bar span { display: none; }
+  }
 </style></head>
 <body>
   <h1>🏝️ Design options</h1>
@@ -170,7 +180,7 @@ const html = `<!doctype html>
       ${COMBOS.map(
         ([label, q, note], i) => `
       <a class="card" href="${LIVE}/?${q}&autostart" target="_blank" style="text-decoration:none;color:inherit">
-        <img src="img/combo-${i}.png" alt="${label}">
+        <img src="img/combo-${i}.jpg" alt="${label}" loading="lazy">
         <div class="meta"><b>${label}</b><span>${note}</span><span style="color:var(--accent);font-weight:700">walk around in it ↗</span></div>
       </a>`,
       ).join('')}
