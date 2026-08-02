@@ -1,15 +1,19 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>David's Island — design options</title>
+<title>David's Island — design round 2</title>
 <style>
   :root { --paper:#fdf6e9; --ink:#4a3b2c; --soft:#756043; --accent:#e07a3f; }
   * { box-sizing: border-box; margin: 0; }
   body { font-family: ui-rounded,'SF Pro Rounded',system-ui,sans-serif; background:#f6e9d2; color:var(--ink); padding: 40px 5vw 140px; }
-  h1 { font-size: 34px; } .sub { color: var(--soft); margin: 6px 0 30px; max-width: 640px; line-height:1.5; }
+  h1 { font-size: 34px; } .sub { color: var(--soft); margin: 6px 0 30px; max-width: 660px; line-height:1.5; }
   h2 { font-size: 22px; margin: 44px 0 4px; }
   .blurb { color: var(--soft); margin-bottom: 14px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .clock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .clock-grid figure { background: var(--paper); border-radius: 14px; overflow: hidden; box-shadow: 0 6px 18px rgba(80,45,15,.12); }
+  .clock-grid img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+  .clock-grid figcaption { padding: 8px 12px; font-size: 13px; font-weight: 700; }
   .card { display: block; background: var(--paper); border-radius: 16px; overflow: hidden; cursor: pointer; border: 3px solid transparent; box-shadow: 0 8px 24px rgba(80,45,15,.12); position: relative; }
   .card:has(input:checked) { border-color: var(--accent); }
   .card input { position: absolute; top: 10px; left: 10px; transform: scale(1.4); accent-color: var(--accent); }
@@ -17,7 +21,6 @@
   .meta { padding: 12px 14px 14px; display: grid; gap: 4px; }
   .meta b { font-size: 15px; } .meta span { font-size: 13px; color: var(--soft); }
   .meta a { font-size: 12.5px; color: var(--accent); font-weight: 700; text-decoration: none; }
-  .combos .card { pointer-events: auto; }
   .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paper); box-shadow: 0 -8px 30px rgba(80,45,15,.18); padding: 14px 5vw; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
   .bar button { background: var(--accent); color: #fff; border: 0; border-radius: 999px; padding: 11px 22px; font: inherit; font-weight: 700; cursor: pointer; }
   #picks { font-family: ui-monospace, monospace; font-size: 14px; background: #f1e4c8; padding: 8px 14px; border-radius: 10px; word-break: break-all; }
@@ -26,6 +29,7 @@
     h1 { font-size: 26px; }
     h2 { font-size: 19px; margin-top: 34px; }
     .grid { grid-template-columns: 1fr; gap: 14px; }
+    .clock-grid { grid-template-columns: 1fr 1fr; }
     .card input { transform: scale(1.7); top: 14px; left: 14px; }
     .meta a { padding: 6px 0; display: inline-block; }
     .bar { padding: 12px 16px; gap: 10px; }
@@ -33,123 +37,192 @@
   }
 </style></head>
 <body>
-  <h1>🏝️ Design options</h1>
-  <p class="sub">Each image is rendered in-engine — what you pick is exactly what ships. Select one option per section (A = what's live today), then copy the pick string at the bottom and send it to Claude. Every card also has a live link so you can feel it in motion.</p>
+  <h1>🏝️ Design round 2</h1>
+  <p class="sub">New this round: the island now follows the visitor's <b>local clock</b> (strip below), the island is <b>~18% smaller</b>, grass got patchy texture + flowers, and the water bands wobble and mottle. Pick one option per section, hit "copy my picks", and send the string to Claude. Every card links to a live preview.</p>
+
+  <section>
+    <h2>0 · A day on the island</h2>
+    <p class="blurb">Not a choice — this ships. The look blends smoothly through these moments based on the visitor's local time (cotton-candy sunset is the signature). Preview any hour live with <b>?time=19.25</b> etc.</p>
+    <div class="clock-grid">
+      
+      <figure>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?time=6.75&autostart" target="_blank"><img src="img/clock-6_75.jpg" alt="Dawn"></a>
+        <figcaption>Dawn · 6.75h</figcaption>
+      </figure>
+      <figure>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?time=12&autostart" target="_blank"><img src="img/clock-12.jpg" alt="Midday"></a>
+        <figcaption>Midday · 12h</figcaption>
+      </figure>
+      <figure>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?time=17.75&autostart" target="_blank"><img src="img/clock-17_75.jpg" alt="Golden hour"></a>
+        <figcaption>Golden hour · 17.75h</figcaption>
+      </figure>
+      <figure>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?time=19.25&autostart" target="_blank"><img src="img/clock-19_25.jpg" alt="Sunset (the signature)"></a>
+        <figcaption>Sunset (the signature) · 19.25h</figcaption>
+      </figure>
+      <figure>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?time=20.75&autostart" target="_blank"><img src="img/clock-20_75.jpg" alt="Dusk"></a>
+        <figcaption>Dusk · 20.75h</figcaption>
+      </figure>
+      <figure>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?time=23&autostart" target="_blank"><img src="img/clock-23.jpg" alt="Night"></a>
+        <figcaption>Night · 23h</figcaption>
+      </figure>
+    </div>
+  </section>
+
   
 <section>
-  <h2>1 · Mood & lighting</h2>
-  <p class="blurb">The biggest lever — sky, light, fog, water color, and ground palette as one package.</p>
+  <h2>1 · Cotton-candy palette</h2>
+  <p class="blurb">Refinements of the sunset moment — water, sand, grass, and sky tint move together.</p>
   <div class="grid">
     
     <label class="card">
-      <input type="radio" name="mood" value="a" checked>
-      <img src="img/mood-a.jpg" alt="Golden hour" loading="lazy">
+      <input type="radio" name="palette" value="c1" checked>
+      <img src="img/palette-c1.jpg" alt="Original" loading="lazy">
       <div class="meta">
-        <b>A — Golden hour</b>
-        <span>The current look. Warm peach, long shadows.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?mood=a&autostart" target="_blank">try it live ↗</a>
+        <b>C1 — Original</b>
+        <span>The cotton candy you picked — unchanged reference.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?palette=c1&time=19.25&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
-      <input type="radio" name="mood" value="b" >
-      <img src="img/mood-b.jpg" alt="High noon" loading="lazy">
+      <input type="radio" name="palette" value="c2" >
+      <img src="img/palette-c2.jpg" alt="Peach lilac" loading="lazy">
       <div class="meta">
-        <b>B — High noon</b>
-        <span>Postcard blues, vivid turquoise, crisp white light.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?mood=b&autostart" target="_blank">try it live ↗</a>
+        <b>C2 — Peach lilac</b>
+        <span>Warmer sand, lighter lavender water, peachy sky.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?palette=c2&time=19.25&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
-      <input type="radio" name="mood" value="c" >
-      <img src="img/mood-c.jpg" alt="Cotton-candy sunset" loading="lazy">
+      <input type="radio" name="palette" value="c3" >
+      <img src="img/palette-c3.jpg" alt="Berry cream" loading="lazy">
       <div class="meta">
-        <b>C — Cotton-candy sunset</b>
-        <span>Pink sky, lavender-blue deep water, soft and dreamy.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?mood=c&autostart" target="_blank">try it live ↗</a>
+        <b>C3 — Berry cream</b>
+        <span>Deeper berry-blue water, magenta-leaning sky.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?palette=c3&time=19.25&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
-      <input type="radio" name="mood" value="d" >
-      <img src="img/mood-d.jpg" alt="Dusk ember" loading="lazy">
+      <input type="radio" name="palette" value="c4" >
+      <img src="img/palette-c4.jpg" alt="Pastel milk" loading="lazy">
       <div class="meta">
-        <b>D — Dusk ember</b>
-        <span>Deep twilight — the campfire and beacons really glow.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?mood=d&autostart" target="_blank">try it live ↗</a>
+        <b>C4 — Pastel milk</b>
+        <span>Everything lighter and milkier — softest option.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?palette=c4&time=19.25&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
   </div>
 </section>
 <section>
-  <h2>2 · Water surface</h2>
-  <p class="blurb">Same colors as the chosen mood — this is about the surface style.</p>
+  <h2>2 · Toon-band water</h2>
+  <p class="blurb">All variants now have mottling texture + wobbling band shapes. Judged at sunset.</p>
   <div class="grid">
     
     <label class="card">
-      <input type="radio" name="water" value="a" checked>
+      <input type="radio" name="water" value="b1" checked>
+      <img src="img/water-b1.jpg" alt="3 bands · crisp" loading="lazy">
+      <div class="meta">
+        <b>B1 — 3 bands · crisp</b>
+        <span>Your pick from round one, now textured.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?water=b1&time=19.25&autostart" target="_blank">try it live ↗</a>
+      </div>
+    </label>
+    <label class="card">
+      <input type="radio" name="water" value="b2" >
+      <img src="img/water-b2.jpg" alt="4 bands · soft" loading="lazy">
+      <div class="meta">
+        <b>B2 — 4 bands · soft</b>
+        <span>More steps, softer edges — halfway to a gradient.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?water=b2&time=19.25&autostart" target="_blank">try it live ↗</a>
+      </div>
+    </label>
+    <label class="card">
+      <input type="radio" name="water" value="b3" >
+      <img src="img/water-b3.jpg" alt="2 bands · contour" loading="lazy">
+      <div class="meta">
+        <b>B3 — 2 bands · contour</b>
+        <span>Chunky two-tone with foam lines tracing the boundary.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?water=b3&time=19.25&autostart" target="_blank">try it live ↗</a>
+      </div>
+    </label>
+    <label class="card">
+      <input type="radio" name="water" value="b4" >
+      <img src="img/water-b4.jpg" alt="3 bands · contour + sparkle" loading="lazy">
+      <div class="meta">
+        <b>B4 — 3 bands · contour + sparkle</b>
+        <span>Foam contours plus glinting sparkles.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?water=b4&time=19.25&autostart" target="_blank">try it live ↗</a>
+      </div>
+    </label>
+    <label class="card">
+      <input type="radio" name="water" value="a" >
       <img src="img/water-a.jpg" alt="Soft gradient" loading="lazy">
       <div class="meta">
         <b>A — Soft gradient</b>
-        <span>The current look. Smooth shallow→deep blend, fine foam flecks.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?water=a&autostart" target="_blank">try it live ↗</a>
-      </div>
-    </label>
-    <label class="card">
-      <input type="radio" name="water" value="b" >
-      <img src="img/water-b.jpg" alt="Toon bands" loading="lazy">
-      <div class="meta">
-        <b>B — Toon bands</b>
-        <span>Posterized color steps and bolder, chunkier foam. Most stylized.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?water=b&autostart" target="_blank">try it live ↗</a>
-      </div>
-    </label>
-    <label class="card">
-      <input type="radio" name="water" value="c" >
-      <img src="img/water-c.jpg" alt="Glassy calm" loading="lazy">
-      <div class="meta">
-        <b>C — Glassy calm</b>
-        <span>More transparent, fewer flecks — serene and quiet.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?water=c&autostart" target="_blank">try it live ↗</a>
+        <span>The non-toon reference, for comparison.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?water=a&time=19.25&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
   </div>
 </section>
 <section>
-  <h2>3 · Palm trees</h2>
-  <p class="blurb">Crown fullness and silhouette.</p>
+  <h2>3 · Trees</h2>
+  <p class="blurb">Five silhouettes, shot at golden hour. Changes every tree on the island.</p>
   <div class="grid">
     
     <label class="card">
-      <input type="radio" name="palm" value="a" checked>
-      <img src="img/palm-a.jpg" alt="Classic" loading="lazy">
+      <input type="radio" name="tree" value="a" checked>
+      <img src="img/tree-a.jpg" alt="Classic palm" loading="lazy">
       <div class="meta">
-        <b>A — Classic</b>
-        <span>The current look. 9 fronds, balanced.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?palm=a&autostart" target="_blank">try it live ↗</a>
+        <b>A — Classic palm</b>
+        <span>The current 9-frond design.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?tree=a&time=17.75&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
-      <input type="radio" name="palm" value="b" >
-      <img src="img/palm-b.jpg" alt="Lush" loading="lazy">
+      <input type="radio" name="tree" value="b" >
+      <img src="img/tree-b.jpg" alt="Layered lush" loading="lazy">
       <div class="meta">
-        <b>B — Lush</b>
-        <span>13 droopier, wider fronds, fuller crown, deeper green.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?palm=b&autostart" target="_blank">try it live ↗</a>
+        <b>B — Layered lush</b>
+        <span>Two tiers — long droopers below, short upswept above.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?tree=b&time=17.75&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
-      <input type="radio" name="palm" value="c" >
-      <img src="img/palm-c.jpg" alt="Breezy" loading="lazy">
+      <input type="radio" name="tree" value="c" >
+      <img src="img/tree-c.jpg" alt="Fan palm" loading="lazy">
       <div class="meta">
-        <b>C — Breezy</b>
-        <span>7 long thin fronds, taller and lighter — more windswept.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?palm=c&autostart" target="_blank">try it live ↗</a>
+        <b>C — Fan palm</b>
+        <span>Tall, straighter trunk, upright fan of narrow fronds.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?tree=c&time=17.75&autostart" target="_blank">try it live ↗</a>
+      </div>
+    </label>
+    <label class="card">
+      <input type="radio" name="tree" value="d" >
+      <img src="img/tree-d.jpg" alt="Round canopy" loading="lazy">
+      <div class="meta">
+        <b>D — Round canopy</b>
+        <span>Not a palm — clustered leaf blobs, storybook tree.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?tree=d&time=17.75&autostart" target="_blank">try it live ↗</a>
+      </div>
+    </label>
+    <label class="card">
+      <input type="radio" name="tree" value="e" >
+      <img src="img/tree-e.jpg" alt="Leaning coconut" loading="lazy">
+      <div class="meta">
+        <b>E — Leaning coconut</b>
+        <span>Strong postcard lean with long sparse fronds.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?tree=e&time=17.75&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
   </div>
 </section>
 <section>
   <h2>4 · Bebo colorways</h2>
-  <p class="blurb">All tabby-striped except the tuxedo. Pick whichever is most Bebo.</p>
+  <p class="blurb">Face-on at midday for true colors.</p>
   <div class="grid">
     
     <label class="card">
@@ -157,8 +230,8 @@
       <img src="img/cat-a.jpg" alt="Brown tabby" loading="lazy">
       <div class="meta">
         <b>A — Brown tabby</b>
-        <span>The current look. Warm brown, green eyes.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?cat=a&autostart" target="_blank">try it live ↗</a>
+        <span>Current. Warm brown, green eyes.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?cat=a&time=12&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
@@ -166,8 +239,8 @@
       <img src="img/cat-b.jpg" alt="Grey tabby" loading="lazy">
       <div class="meta">
         <b>B — Grey tabby</b>
-        <span>Classic grey with slate stripes, amber eyes.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?cat=b&autostart" target="_blank">try it live ↗</a>
+        <span>Classic grey, amber eyes.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?cat=b&time=12&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
@@ -175,8 +248,8 @@
       <img src="img/cat-c.jpg" alt="Orange tabby" loading="lazy">
       <div class="meta">
         <b>C — Orange tabby</b>
-        <span>Marmalade menace, amber eyes.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?cat=c&autostart" target="_blank">try it live ↗</a>
+        <span>Marmalade menace.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?cat=c&time=12&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
@@ -184,15 +257,15 @@
       <img src="img/cat-d.jpg" alt="Tuxedo black" loading="lazy">
       <div class="meta">
         <b>D — Tuxedo black</b>
-        <span>Near-black with white belly + paws, yellow eyes.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?cat=d&autostart" target="_blank">try it live ↗</a>
+        <span>Near-black, white belly + paws, yellow eyes.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?cat=d&time=12&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
   </div>
 </section>
 <section>
-  <h2>5 · Undiscovered-item beacons</h2>
-  <p class="blurb">How unfound items call to you from across the island.</p>
+  <h2>5 · Beacons</h2>
+  <p class="blurb">Shot at dusk, when they matter most.</p>
   <div class="grid">
     
     <label class="card">
@@ -200,8 +273,8 @@
       <img src="img/beacon-a.jpg" alt="Gold diamond" loading="lazy">
       <div class="meta">
         <b>A — Gold diamond</b>
-        <span>The current look. Spinning, bobbing octahedron.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?beacon=a&autostart" target="_blank">try it live ↗</a>
+        <span>Current spinning octahedron.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?beacon=a&time=20.75&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
@@ -209,8 +282,8 @@
       <img src="img/beacon-b.jpg" alt="Light beam" loading="lazy">
       <div class="meta">
         <b>B — Light beam</b>
-        <span>A soft pillar of light with a small diamond on top.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?beacon=b&autostart" target="_blank">try it live ↗</a>
+        <span>Soft pillar of light + small diamond.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?beacon=b&time=20.75&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
     <label class="card">
@@ -218,40 +291,22 @@
       <img src="img/beacon-c.jpg" alt="Glow orb" loading="lazy">
       <div class="meta">
         <b>C — Glow orb</b>
-        <span>A round bobbing glow — softer, firefly-ish.</span>
-        <a href="https://personal-website-six-fawn-22.vercel.app/?beacon=c&autostart" target="_blank">try it live ↗</a>
+        <span>Round bobbing firefly glow.</span>
+        <a href="https://personal-website-six-fawn-22.vercel.app/?beacon=c&time=20.75&autostart" target="_blank">try it live ↗</a>
       </div>
     </label>
   </div>
 </section>
-  <section class="combos">
-    <h2>Curated combos</h2>
-    <p class="blurb">A few packages to calibrate against — click through to walk around in them.</p>
-    <div class="grid">
-      
-      <a class="card" href="https://personal-website-six-fawn-22.vercel.app/?mood=b&water=c&palm=b&autostart" target="_blank" style="text-decoration:none;color:inherit">
-        <img src="img/combo-0.jpg" alt="Postcard" loading="lazy">
-        <div class="meta"><b>Postcard</b><span>High noon + glassy water + lush palms</span><span style="color:var(--accent);font-weight:700">walk around in it ↗</span></div>
-      </a>
-      <a class="card" href="https://personal-website-six-fawn-22.vercel.app/?mood=c&water=b&palm=a&autostart" target="_blank" style="text-decoration:none;color:inherit">
-        <img src="img/combo-1.jpg" alt="Dream" loading="lazy">
-        <div class="meta"><b>Dream</b><span>Cotton-candy sunset + toon water</span><span style="color:var(--accent);font-weight:700">walk around in it ↗</span></div>
-      </a>
-      <a class="card" href="https://personal-website-six-fawn-22.vercel.app/?mood=d&water=a&palm=b&beacon=b&autostart" target="_blank" style="text-decoration:none;color:inherit">
-        <img src="img/combo-2.jpg" alt="Ember" loading="lazy">
-        <div class="meta"><b>Ember</b><span>Dusk + lush palms + light beams</span><span style="color:var(--accent);font-weight:700">walk around in it ↗</span></div>
-      </a>
-    </div>
-  </section>
+
   <div class="bar">
     <button onclick="update();navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('picks').textContent)">copy my picks</button>
-    <code id="picks">mood=a water=a palm=a cat=a beacon=a</code>
+    <code id="picks">palette=c1 water=b1 tree=a cat=a beacon=a</code>
     <span style="color:var(--soft);font-size:13px">— send that string (or just say it) to Claude</span>
   </div>
   <script>
     function update() {
-      const keys = ['mood','water','palm','cat','beacon']
-      document.getElementById('picks').textContent = keys.map(k => k + '=' + (document.querySelector('input[name='+k+']:checked')?.value ?? 'a')).join(' ')
+      const keys = ['palette','water','tree','cat','beacon']
+      document.getElementById('picks').textContent = keys.map(k => k + '=' + (document.querySelector('input[name='+k+']:checked')?.value ?? '?')).join(' ')
     }
     document.addEventListener('change', update)
   </script>

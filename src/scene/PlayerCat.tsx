@@ -350,7 +350,7 @@ export function PlayerCat({ controls }: { controls: RefObject<CameraControls | n
   })
 
   return (
-    <group ref={root} position={[0, terrainHeight(0, 22), 22]} rotation-y={Math.PI}>
+    <group ref={root} position={[0, terrainHeight(0, 18), 18]} rotation-y={Math.PI}>
       <CatModel refs={refs} />
     </group>
   )

@@ -20,20 +20,20 @@ export interface IslandItem {
 }
 
 export const ITEMS: IslandItem[] = [
-  { id: 'projects', title: 'Treasure Chest', emoji: '📦', position: [-13, 8], interactRadius: 2.6, colliderRadius: 0.9 },
-  { id: 'framewise', title: 'First-Aid Kit', emoji: '🩹', position: [3.5, 19], interactRadius: 2.4, colliderRadius: 0.55 },
-  { id: 'music', title: 'Beach Speaker', emoji: '🔊', position: [-15, -8], interactRadius: 2.8, colliderRadius: 1.4 },
-  { id: 'food', title: 'Campfire', emoji: '🍳', position: [9, -13], interactRadius: 2.8, colliderRadius: 1.2 },
-  { id: 'bottle', title: 'Message in a Bottle', emoji: '🍾', position: [-6, 20.5], interactRadius: 2.4, colliderRadius: 0.35 },
-  { id: 'journal', title: 'Journal', emoji: '📖', position: [8.7, -2.6], interactRadius: 2.4, colliderRadius: 0.35 },
+  { id: 'projects', title: 'Treasure Chest', emoji: '📦', position: [-10.7, 6.6], interactRadius: 2.6, colliderRadius: 0.9 },
+  { id: 'framewise', title: 'First-Aid Kit', emoji: '🩹', position: [2.9, 15.6], interactRadius: 2.4, colliderRadius: 0.55 },
+  { id: 'music', title: 'Beach Speaker', emoji: '🔊', position: [-12.3, -6.6], interactRadius: 2.8, colliderRadius: 1.4 },
+  { id: 'food', title: 'Campfire', emoji: '🍳', position: [7.4, -10.7], interactRadius: 2.8, colliderRadius: 1.2 },
+  { id: 'bottle', title: 'Message in a Bottle', emoji: '🍾', position: [-4.9, 16.8], interactRadius: 2.4, colliderRadius: 0.35 },
+  { id: 'journal', title: 'Journal', emoji: '📖', position: [7.1, -2.1], interactRadius: 2.4, colliderRadius: 0.35 },
 ]
 
 // Palm placement — the hero palm crowns the dune, three smaller ones dot the island.
 export const PALMS = [
-  { x: 7, z: -5, scale: 1, rotY: 0.4, swayPhase: 0, hero: true },
-  { x: -8, z: -14, scale: 0.62, rotY: 2.1, swayPhase: 1.7 },
-  { x: 14, z: 3.5, scale: 0.58, rotY: 4.2, swayPhase: 3.1 },
-  { x: -2.5, z: -10, scale: 0.7, rotY: 5.5, swayPhase: 4.6 },
+  { x: 5.7, z: -4.1, scale: 1, rotY: 0.4, swayPhase: 0, hero: true },
+  { x: -6.6, z: -11.5, scale: 0.62, rotY: 2.1, swayPhase: 1.7 },
+  { x: 11.5, z: 2.9, scale: 0.58, rotY: 4.2, swayPhase: 3.1 },
+  { x: -2.1, z: -8.2, scale: 0.7, rotY: 5.5, swayPhase: 4.6 },
 ] as const
 
 // Static obstacles that block walking.

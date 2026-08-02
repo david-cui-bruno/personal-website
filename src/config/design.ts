@@ -1,9 +1,14 @@
-// Design variants, switchable via URL params so options can be compared in-engine:
-//   ?mood=b&water=c&palm=b&cat=c&beacon=a
-// Defaults (all 'a') are the shipped look. Extra dev params:
-//   autostart  — skip the intro (screenshot harness)
-//   cam=x,y,z,tx,ty,tz — fixed camera, disables follow-cam
-//   hq — lock quality high (no PerformanceMonitor degrade in headless renders)
+// Design system, switchable via URL params for evaluation:
+//   ?palette=c1..c4  — cotton-candy color family (ground/water/sunset tints)
+//   ?water=a|b1..b4  — water surface style (b* = toon-band variants)
+//   ?tree=a..e       — tree design
+//   ?cat=a..d        — Bebo colorway
+//   ?beacon=a..c     — undiscovered-item beacon style
+//   ?time=19.5       — freeze the clock at an hour (0-24); otherwise the
+//                      island follows the visitor's local time of day
+// Dev params: autostart, cam=x,y,z,tx,ty,tz, hq
+//
+// NOTE: no `three` imports here — this file loads in the eager UI bundle.
 
 const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()
 
@@ -12,83 +17,170 @@ function pick<T extends string>(key: string, allowed: readonly T[]): T {
   return (allowed.includes(v as T) ? v : allowed[0]) as T
 }
 
+const timeParam = params.get('time')
+
 export const DESIGN = {
-  mood: pick('mood', ['a', 'b', 'c', 'd'] as const),
-  water: pick('water', ['a', 'b', 'c'] as const),
-  palm: pick('palm', ['a', 'b', 'c'] as const),
+  palette: pick('palette', ['c1', 'c2', 'c3', 'c4'] as const),
+  water: pick('water', ['b1', 'b2', 'b3', 'b4', 'a'] as const),
+  tree: pick('tree', ['a', 'b', 'c', 'd', 'e'] as const),
   cat: pick('cat', ['a', 'b', 'c', 'd'] as const),
   beacon: pick('beacon', ['a', 'b', 'c'] as const),
+  /** frozen clock hour for previews, or null to follow real local time */
+  time: timeParam !== null && Number.isFinite(Number(timeParam)) ? ((Number(timeParam) % 24) + 24) % 24 : null,
   autostart: params.has('autostart'),
   cam: params.get('cam'),
   lockQuality: params.has('hq'),
 }
 
 // ---------------------------------------------------------------------------
-// Moods: sky + light + fog + water color + ground palette, as one package.
+// Cotton-candy palettes: time-independent world colors + the sunset signature.
 // ---------------------------------------------------------------------------
 
-export interface Mood {
-  sky: { sunPosition: [number, number, number]; turbidity: number; rayleigh: number; mieCoefficient: number; mieDirectionalG: number }
-  fog: { color: string; near: number; far: number }
+export interface Palette {
+  ground: { sandDry: string; sandWet: string; grass: string; grassDeep: string; underwaterSand: string }
+  water: { near: string; far: string }
+  flowers: [string, string]
+  sunset: { fog: string; sun: string; hemiSky: string }
+}
+
+const PALETTES: Record<'c1' | 'c2' | 'c3' | 'c4', Palette> = {
+  // c1 — the original cotton candy
+  c1: {
+    ground: { sandDry: '#f4dcb4', sandWet: '#d9b98a', grass: '#93bb74', grassDeep: '#79a35e', underwaterSand: '#bd9f7d' },
+    water: { near: '#74dcd2', far: '#5b7fc7' },
+    flowers: ['#fff3f6', '#ffc9dd'],
+    sunset: { fog: '#ecb9c9', sun: '#ffb1a0', hemiSky: '#ffd3e0' },
+  },
+  // c2 — peach lilac: warmer sand, lighter lavender deep water
+  c2: {
+    ground: { sandDry: '#f6e2bd', sandWet: '#dfc093', grass: '#9cc182', grassDeep: '#82a968', underwaterSand: '#c4a884' },
+    water: { near: '#7fe0d2', far: '#6d8fd8' },
+    flowers: ['#fff6ef', '#ffd2c9'],
+    sunset: { fog: '#f2c3c4', sun: '#ffb8a5', hemiSky: '#ffd9d6' },
+  },
+  // c3 — berry cream: deeper berry-blue water, magenta-leaning sky
+  c3: {
+    ground: { sandDry: '#f1d6ae', sandWet: '#d2b184', grass: '#8ab06d', grassDeep: '#6f9757', underwaterSand: '#b89a76' },
+    water: { near: '#6bd6cd', far: '#4f6ab5' },
+    flowers: ['#fdeef6', '#f3a8cd'],
+    sunset: { fog: '#e6a9c6', sun: '#ff9fae', hemiSky: '#f7c2dd' },
+  },
+  // c4 — pastel milk: everything lighter and milkier
+  c4: {
+    ground: { sandDry: '#f8e8c9', sandWet: '#e3cba1', grass: '#a5c98e', grassDeep: '#8bb274', underwaterSand: '#cbb38d' },
+    water: { near: '#8ce4da', far: '#7ba1d8' },
+    flowers: ['#ffffff', '#ffd9e6'],
+    sunset: { fog: '#f4cdd6', sun: '#ffc2b3', hemiSky: '#ffe2e8' },
+  },
+}
+
+export const PALETTE_CHOICE = PALETTES[DESIGN.palette]
+
+// ---------------------------------------------------------------------------
+// Time of day: keyframes blended by the (local) clock. Ground/water albedo
+// stays constant — the lights, sky, fog, and exposure do the day-turning.
+// ---------------------------------------------------------------------------
+
+export interface MoodFrame {
+  h: number
+  sky: { sun: [number, number, number]; turbidity: number; rayleigh: number; mie: number; g: number }
   sun: { color: string; intensity: number; position: [number, number, number] }
   hemi: { sky: string; ground: string; intensity: number }
-  envIntensity: number
+  env: number
+  fog: { color: string; near: number; far: number }
   exposure: number
-  water: { near: string; far: string }
-  ground: { sandDry: string; sandWet: string; grass: string; grassDeep: string; underwaterSand: string }
+  stars: number
 }
 
-const MOODS: Record<'a' | 'b' | 'c' | 'd', Mood> = {
-  // A — golden hour (the current look)
-  a: {
-    sky: { sunPosition: [45, 5, -60], turbidity: 7.5, rayleigh: 2.6, mieCoefficient: 0.008, mieDirectionalG: 0.85 },
-    fog: { color: '#f2bd8d', near: 45, far: 150 },
-    sun: { color: '#ffc98f', intensity: 2.6, position: [26, 14, -30] },
-    hemi: { sky: '#ffd7a8', ground: '#9a7c58', intensity: 0.5 },
-    envIntensity: 0.55,
-    exposure: 1.12,
-    water: { near: '#5ed3c4', far: '#1e7f9e' },
-    ground: { sandDry: '#e9d29c', sandWet: '#c9ad76', grass: '#88b060', grassDeep: '#6d9a4e', underwaterSand: '#b3986b' },
-  },
-  // B — high noon: postcard blues, vivid turquoise, crisp light
-  b: {
-    sky: { sunPosition: [30, 55, 10], turbidity: 2, rayleigh: 0.5, mieCoefficient: 0.003, mieDirectionalG: 0.7 },
-    fog: { color: '#cfe4ec', near: 50, far: 165 },
-    sun: { color: '#fff2dc', intensity: 2.3, position: [20, 32, -14] },
-    hemi: { sky: '#dff2ff', ground: '#a08a67', intensity: 0.45 },
-    envIntensity: 0.4,
-    exposure: 1.0,
-    water: { near: '#46d7c8', far: '#1e93c4' },
-    ground: { sandDry: '#f1e0ab', sandWet: '#d3ba85', grass: '#7fbe5f', grassDeep: '#63a34a', underwaterSand: '#b7a071' },
-  },
-  // C — cotton-candy sunset: pink sky, lavender-blue deep water
-  c: {
-    sky: { sunPosition: [-60, 4, 80], turbidity: 10, rayleigh: 3.4, mieCoefficient: 0.02, mieDirectionalG: 0.82 },
-    fog: { color: '#ecb9c9', near: 45, far: 140 },
-    sun: { color: '#ffb1a0', intensity: 2.2, position: [-24, 12, 26] },
-    hemi: { sky: '#ffd3e0', ground: '#9a7c6a', intensity: 0.5 },
-    envIntensity: 0.55,
-    exposure: 1.08,
-    water: { near: '#74dcd2', far: '#5b7fc7' },
-    ground: { sandDry: '#f4dcb4', sandWet: '#d9b98a', grass: '#93bb74', grassDeep: '#79a35e', underwaterSand: '#bd9f7d' },
-  },
-  // D — dusk ember: deep warm twilight, fire and beacons glow
-  d: {
-    sky: { sunPosition: [-50, 1.5, -80], turbidity: 9, rayleigh: 4, mieCoefficient: 0.015, mieDirectionalG: 0.88 },
-    fog: { color: '#8a5f70', near: 40, far: 130 },
-    sun: { color: '#ff8f5e', intensity: 1.7, position: [-28, 9, -30] },
-    hemi: { sky: '#b78bb0', ground: '#5f4a44', intensity: 0.4 },
-    envIntensity: 0.4,
-    exposure: 0.98,
-    water: { near: '#37a49b', far: '#1d4a72' },
-    ground: { sandDry: '#d9b98d', sandWet: '#b39468', grass: '#6f9757', grassDeep: '#57814a', underwaterSand: '#97815f' },
-  },
+const P = PALETTES[DESIGN.palette]
+
+const KEYFRAMES: MoodFrame[] = [
+  { h: 0.0, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#8fa8d6', intensity: 0.55, position: [-20, 18, -24] }, hemi: { sky: '#46557a', ground: '#23222e', intensity: 0.4 }, env: 0.12, fog: { color: '#303752', near: 26, far: 88 }, exposure: 0.92, stars: 1 },
+  { h: 5.0, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#8fa8d6', intensity: 0.55, position: [-20, 18, -24] }, hemi: { sky: '#46557a', ground: '#23222e', intensity: 0.4 }, env: 0.12, fog: { color: '#303752', near: 26, far: 88 }, exposure: 0.92, stars: 1 },
+  { h: 6.75, sky: { sun: [70, 3, 40], turbidity: 8, rayleigh: 2.8, mie: 0.012, g: 0.82 }, sun: { color: '#ffb9a0', intensity: 1.6, position: [26, 10, 18] }, hemi: { sky: '#f6cdd4', ground: '#6f6055', intensity: 0.45 }, env: 0.35, fog: { color: '#e8c3c4', near: 31, far: 98 }, exposure: 1.02, stars: 0 },
+  { h: 9.5, sky: { sun: [25, 50, -15], turbidity: 3.2, rayleigh: 1.1, mie: 0.004, g: 0.75 }, sun: { color: '#fff0d6', intensity: 2.25, position: [18, 30, -12] }, hemi: { sky: '#dcecf4', ground: '#9a8a70', intensity: 0.45 }, env: 0.4, fog: { color: '#d9e6e8', near: 35, far: 112 }, exposure: 1.02, stars: 0 },
+  { h: 16.0, sky: { sun: [25, 50, -15], turbidity: 3.2, rayleigh: 1.1, mie: 0.004, g: 0.75 }, sun: { color: '#fff0d6', intensity: 2.25, position: [18, 30, -12] }, hemi: { sky: '#dcecf4', ground: '#9a8a70', intensity: 0.45 }, env: 0.4, fog: { color: '#d9e6e8', near: 35, far: 112 }, exposure: 1.02, stars: 0 },
+  { h: 17.75, sky: { sun: [42, 7, -55], turbidity: 7, rayleigh: 2.4, mie: 0.009, g: 0.85 }, sun: { color: '#ffc48c', intensity: 2.4, position: [24, 13, -27] }, hemi: { sky: '#ffd9b0', ground: '#8d7458', intensity: 0.5 }, env: 0.5, fog: { color: '#f0c1a6', near: 31, far: 103 }, exposure: 1.08, stars: 0 },
+  { h: 19.25, sky: { sun: [-55, 4, 70], turbidity: 9.5, rayleigh: 3.2, mie: 0.02, g: 0.82 }, sun: { color: P.sunset.sun, intensity: 2.15, position: [-22, 11, 24] }, hemi: { sky: P.sunset.hemiSky, ground: '#93786a', intensity: 0.5 }, env: 0.5, fog: { color: P.sunset.fog, near: 30, far: 97 }, exposure: 1.06, stars: 0 },
+  { h: 20.75, sky: { sun: [-45, 0.5, -70], turbidity: 8, rayleigh: 3.6, mie: 0.012, g: 0.86 }, sun: { color: '#d98ba0', intensity: 1.2, position: [-24, 10, -26] }, hemi: { sky: '#8f7ba6', ground: '#4c4350', intensity: 0.42 }, env: 0.25, fog: { color: '#8a7396', near: 28, far: 92 }, exposure: 0.98, stars: 0.35 },
+  { h: 22.25, sky: { sun: [-30, -8, -60], turbidity: 3, rayleigh: 0.6, mie: 0.003, g: 0.8 }, sun: { color: '#8fa8d6', intensity: 0.55, position: [-20, 18, -24] }, hemi: { sky: '#46557a', ground: '#23222e', intensity: 0.4 }, env: 0.12, fog: { color: '#303752', near: 26, far: 88 }, exposure: 0.92, stars: 1 },
+]
+
+// -- tiny color/number lerp helpers (no three.js in this bundle) --
+
+function hexToRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16)
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 
-export const MOOD = MOODS[DESIGN.mood]
+function lerpHex(a: string, b: string, t: number): string {
+  const ca = hexToRgb(a)
+  const cb = hexToRgb(b)
+  const c = ca.map((v, i) => Math.round(v + (cb[i] - v) * t))
+  return `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`
+}
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+const lerp3 = (a: [number, number, number], b: [number, number, number], t: number): [number, number, number] => [
+  lerp(a[0], b[0], t),
+  lerp(a[1], b[1], t),
+  lerp(a[2], b[2], t),
+]
+
+/** Blended mood for an hour of the day (0-24). */
+export function moodAtHour(hour: number): MoodFrame {
+  const h = ((hour % 24) + 24) % 24
+  let a = KEYFRAMES[KEYFRAMES.length - 1]
+  let b = KEYFRAMES[0]
+  let span = 24 - a.h + b.h
+  let t = h >= a.h ? (h - a.h) / span : (h + 24 - a.h) / span
+  for (let i = 0; i < KEYFRAMES.length - 1; i++) {
+    if (h >= KEYFRAMES[i].h && h < KEYFRAMES[i + 1].h) {
+      a = KEYFRAMES[i]
+      b = KEYFRAMES[i + 1]
+      t = (h - a.h) / (b.h - a.h)
+      break
+    }
+  }
+  return {
+    h,
+    sky: {
+      sun: lerp3(a.sky.sun, b.sky.sun, t),
+      turbidity: lerp(a.sky.turbidity, b.sky.turbidity, t),
+      rayleigh: lerp(a.sky.rayleigh, b.sky.rayleigh, t),
+      mie: lerp(a.sky.mie, b.sky.mie, t),
+      g: lerp(a.sky.g, b.sky.g, t),
+    },
+    sun: {
+      color: lerpHex(a.sun.color, b.sun.color, t),
+      intensity: lerp(a.sun.intensity, b.sun.intensity, t),
+      position: lerp3(a.sun.position, b.sun.position, t),
+    },
+    hemi: {
+      sky: lerpHex(a.hemi.sky, b.hemi.sky, t),
+      ground: lerpHex(a.hemi.ground, b.hemi.ground, t),
+      intensity: lerp(a.hemi.intensity, b.hemi.intensity, t),
+    },
+    env: lerp(a.env, b.env, t),
+    fog: {
+      color: lerpHex(a.fog.color, b.fog.color, t),
+      near: lerp(a.fog.near, b.fog.near, t),
+      far: lerp(a.fog.far, b.fog.far, t),
+    },
+    exposure: lerp(a.exposure, b.exposure, t),
+    stars: lerp(a.stars, b.stars, t),
+  }
+}
+
+/** Current mood: frozen at ?time=H, or following the visitor's clock. */
+export function currentMood(): MoodFrame {
+  if (DESIGN.time !== null) return moodAtHour(DESIGN.time)
+  const now = new Date()
+  return moodAtHour(now.getHours() + now.getMinutes() / 60)
+}
 
 // ---------------------------------------------------------------------------
-// Water surface styles (colors come from the mood).
+// Water surface styles. b* are the toon-band family.
 // ---------------------------------------------------------------------------
 
 export interface WaterStyle {
@@ -96,44 +188,31 @@ export interface WaterStyle {
   fleckHi: number
   fleckScale: number
   opacity: number
-  /** 0 = smooth gradient, N = posterized color bands */
   bands: number
+  /** 0 = crisp band edges, 1 = fully smooth */
+  bandSoft: number
+  /** foam contour lines along band boundaries */
+  contour: number
+  /** extra sparkle glints */
+  sparkle: number
 }
 
-const WATER_STYLES: Record<'a' | 'b' | 'c', WaterStyle> = {
-  a: { fleckLo: 0.64, fleckHi: 0.78, fleckScale: 1.0, opacity: 0.93, bands: 0 }, // soft gradient (current)
-  b: { fleckLo: 0.55, fleckHi: 0.6, fleckScale: 0.65, opacity: 0.96, bands: 3 }, // toon bands, bold foam
-  c: { fleckLo: 0.75, fleckHi: 0.87, fleckScale: 1.4, opacity: 0.84, bands: 0 }, // glassy calm
+const WATER_STYLES: Record<'a' | 'b1' | 'b2' | 'b3' | 'b4', WaterStyle> = {
+  a: { fleckLo: 0.64, fleckHi: 0.78, fleckScale: 1.0, opacity: 0.93, bands: 0, bandSoft: 0, contour: 0, sparkle: 0 },
+  b1: { fleckLo: 0.55, fleckHi: 0.6, fleckScale: 0.65, opacity: 0.96, bands: 3, bandSoft: 0.15, contour: 0, sparkle: 0 },
+  b2: { fleckLo: 0.6, fleckHi: 0.68, fleckScale: 1.0, opacity: 0.95, bands: 4, bandSoft: 0.45, contour: 0, sparkle: 0 },
+  b3: { fleckLo: 0.5, fleckHi: 0.54, fleckScale: 0.5, opacity: 0.97, bands: 2, bandSoft: 0.08, contour: 1, sparkle: 0 },
+  b4: { fleckLo: 0.58, fleckHi: 0.64, fleckScale: 0.75, opacity: 0.96, bands: 3, bandSoft: 0.2, contour: 1, sparkle: 1 },
 }
 
 export const WATER_STYLE = WATER_STYLES[DESIGN.water]
 
 // ---------------------------------------------------------------------------
-// Palm styles.
+// Tree designs (see PalmTree.tsx for the geometry).
 // ---------------------------------------------------------------------------
 
-export interface PalmStyle {
-  fronds: number
-  /** frond length multiplier */
-  length: number
-  /** frond width multiplier */
-  width: number
-  /** extra droop (radians) added to every frond */
-  droop: number
-  /** whole-tree height multiplier */
-  height: number
-  frondColor: string
-  coconuts: number
-  coreScale: number
-}
-
-const PALM_STYLES: Record<'a' | 'b' | 'c', PalmStyle> = {
-  a: { fronds: 9, length: 1, width: 1, droop: 0, height: 1, frondColor: '#6cae52', coconuts: 3, coreScale: 1 }, // current
-  b: { fronds: 13, length: 1.22, width: 1.15, droop: 0.17, height: 1.02, frondColor: '#569b45', coconuts: 4, coreScale: 1.35 }, // lush
-  c: { fronds: 7, length: 1.3, width: 0.7, droop: -0.07, height: 1.14, frondColor: '#82c25f', coconuts: 2, coreScale: 0.9 }, // breezy
-}
-
-export const PALM_STYLE = PALM_STYLES[DESIGN.palm]
+export type TreeStyle = 'a' | 'b' | 'c' | 'd' | 'e'
+export const TREE_STYLE: TreeStyle = DESIGN.tree
 
 // ---------------------------------------------------------------------------
 // Bebo colorways.
@@ -149,10 +228,10 @@ export interface CatColors {
 }
 
 const CAT_COLORS: Record<'a' | 'b' | 'c' | 'd', CatColors> = {
-  a: { base: '#a68d70', stripe: '#63503e', belly: '#f4ecdf', earInner: '#dda49b', nose: '#c76d64', eye: '#3a5a34' }, // brown tabby (current)
-  b: { base: '#9a9a9e', stripe: '#54545c', belly: '#f0f0ea', earInner: '#d9a1a1', nose: '#b56a6a', eye: '#b5892f' }, // grey tabby
-  c: { base: '#d99147', stripe: '#a65e2b', belly: '#f6ead8', earInner: '#e8a89a', nose: '#c96a55', eye: '#a8742f' }, // orange tabby
-  d: { base: '#3d3b40', stripe: '#2b292e', belly: '#f4f2ec', earInner: '#c98f90', nose: '#a86868', eye: '#d1a53c' }, // tuxedo black
+  a: { base: '#a68d70', stripe: '#63503e', belly: '#f4ecdf', earInner: '#dda49b', nose: '#c76d64', eye: '#3a5a34' },
+  b: { base: '#9a9a9e', stripe: '#54545c', belly: '#f0f0ea', earInner: '#d9a1a1', nose: '#b56a6a', eye: '#b5892f' },
+  c: { base: '#d99147', stripe: '#a65e2b', belly: '#f6ead8', earInner: '#e8a89a', nose: '#c96a55', eye: '#a8742f' },
+  d: { base: '#3d3b40', stripe: '#2b292e', belly: '#f4f2ec', earInner: '#c98f90', nose: '#a86868', eye: '#d1a53c' },
 }
 
 export const CAT = CAT_COLORS[DESIGN.cat]

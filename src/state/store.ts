@@ -76,7 +76,7 @@ export const useGame = create<GameState>((set, get) => ({
 // High-frequency values live outside React state (written/read every frame).
 // Plain object, not a THREE.Vector3 — importing three here would pull the whole
 // engine into the eagerly-loaded UI bundle.
-export const catPosition = { x: 0, y: 0, z: 22 }
+export const catPosition = { x: 0, y: 0, z: 18 }
 export const joystick = { x: 0, y: 0, active: false }
 
 // Handy for driving the game from the console / test scripts.

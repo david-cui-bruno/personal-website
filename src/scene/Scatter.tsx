@@ -13,16 +13,23 @@ const KEEP_OUT = [
 export function Scatter() {
   const rocks = useMemo(
     () =>
-      scatterPoints({ seed: 11, count: 15, minRadius: 6, maxRadius: 22, minHeight: 0.12, maxSlope: 0.9, keepOut: KEEP_OUT }),
+      scatterPoints({ seed: 11, count: 14, minRadius: 5, maxRadius: 18, minHeight: 0.12, maxSlope: 0.95, keepOut: KEEP_OUT }),
     [],
   )
   const grass = useMemo(
     () =>
-      scatterPoints({ seed: 7, count: 170, minRadius: 2, maxRadius: 18, minHeight: 1.05, maxSlope: 0.55, keepOut: KEEP_OUT }),
+      scatterPoints({ seed: 7, count: 240, minRadius: 1.6, maxRadius: 15, minHeight: 1.0, maxSlope: 0.6, keepOut: KEEP_OUT }),
+    [],
+  )
+  const flowers = useMemo(
+    () =>
+      scatterPoints({ seed: 23, count: 42, minRadius: 2, maxRadius: 13, minHeight: 1.15, maxSlope: 0.5, keepOut: KEEP_OUT }),
     [],
   )
   const grassA = useMemo(() => new THREE.Color(PALETTE.grass).offsetHSL(0.01, 0.08, 0.13), [])
   const grassB = useMemo(() => new THREE.Color(PALETTE.grass).offsetHSL(-0.01, 0.05, 0.05), [])
+  const flowerA = useMemo(() => new THREE.Color(PALETTE.flowerA), [])
+  const flowerB = useMemo(() => new THREE.Color(PALETTE.flowerB), [])
 
   return (
     <>
@@ -46,7 +53,7 @@ export function Scatter() {
         <coneGeometry args={[0.12, 0.22, 5]} />
         <meshStandardMaterial flatShading roughness={0.9} />
         {grass.map((p, i) => {
-          const s = 0.6 + p.rand * 0.7
+          const s = 0.55 + p.rand * 0.75
           return (
             <Instance
               key={i}
@@ -57,6 +64,21 @@ export function Scatter() {
             />
           )
         })}
+      </Instances>
+
+      {/* tiny meadow flowers — cotton-candy confetti */}
+      <Instances limit={flowers.length}>
+        <octahedronGeometry args={[0.055, 0]} />
+        <meshStandardMaterial flatShading roughness={0.7} />
+        {flowers.map((p, i) => (
+          <Instance
+            key={i}
+            position={[p.x, p.y + 0.09, p.z]}
+            scale={[1, 0.55, 1]}
+            rotation={[0, p.rand * 6.28, 0]}
+            color={p.rand > 0.5 ? flowerA : flowerB}
+          />
+        ))}
       </Instances>
     </>
   )

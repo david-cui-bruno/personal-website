@@ -1,7 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { KeyboardControls } from '@react-three/drei'
 import { Experience } from './Experience'
-import { MOOD } from '../config/design'
 import { useGame } from '../state/store'
 
 const KEYMAP = [
@@ -22,7 +21,7 @@ export default function World() {
         shadows
         dpr={quality > 0 ? [1, 2] : [1, 1.5]}
         camera={{ fov: 42, near: 0.5, far: 400, position: [0, 6, 33] }}
-        gl={{ antialias: false, powerPreference: 'high-performance', toneMappingExposure: MOOD.exposure }}
+        gl={{ antialias: false, powerPreference: 'high-performance' }}
       >
         <Experience />
       </Canvas>

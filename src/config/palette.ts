@@ -1,17 +1,17 @@
-import { MOOD, CAT } from './design'
+import { PALETTE_CHOICE, CAT } from './design'
 
 export const PALETTE = {
-  // world colors come from the active mood preset (see design.ts)
-  sandDry: MOOD.ground.sandDry,
-  sandWet: MOOD.ground.sandWet,
-  grass: MOOD.ground.grass,
-  grassDeep: MOOD.ground.grassDeep,
-  underwaterSand: MOOD.ground.underwaterSand,
-  waterNear: MOOD.water.near,
-  waterFar: MOOD.water.far,
+  // world colors come from the chosen cotton-candy palette (design.ts)
+  sandDry: PALETTE_CHOICE.ground.sandDry,
+  sandWet: PALETTE_CHOICE.ground.sandWet,
+  grass: PALETTE_CHOICE.ground.grass,
+  grassDeep: PALETTE_CHOICE.ground.grassDeep,
+  underwaterSand: PALETTE_CHOICE.ground.underwaterSand,
+  waterNear: PALETTE_CHOICE.water.near,
+  waterFar: PALETTE_CHOICE.water.far,
   foam: '#fff6e8',
-  fogColor: MOOD.fog.color,
-  sunLight: MOOD.sun.color,
+  flowerA: PALETTE_CHOICE.flowers[0],
+  flowerB: PALETTE_CHOICE.flowers[1],
 
   // props
   palmTrunk: '#96653c',

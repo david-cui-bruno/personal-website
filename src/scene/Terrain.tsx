@@ -31,7 +31,13 @@ void main() {
   // sand -> grass by height, with a noisy border so it doesn't ring the island
   float grassMask = smoothstep(1.05, 1.75, h + breakup * 0.35);
   vec3 grass = mix(uGrass, uGrassDeep, smoothstep(1.8, 3.2, h + breakup * 0.5));
+  // patchy meadow texture: broad light/dark patches + fine speckle
+  float patches = snoise(vWorldPos.xz * 0.14 + 11.0) * 0.6 + snoise(vWorldPos.xz * 0.55 - 4.0) * 0.4;
+  grass *= 1.0 + patches * 0.085;
+  grass += smoothstep(0.55, 0.9, snoise(vWorldPos.xz * 2.6)) * 0.035; // sun-bleached blades
   vec3 col = mix(uSandDry, grass, grassMask);
+  // gentle ripples in the open sand
+  col *= 1.0 + snoise(vWorldPos.xz * 0.9 + 7.0) * 0.02 * (1.0 - grassMask);
 
   // wet sand near the waterline, underwater sand tint below it
   col = mix(uSandWet, col, smoothstep(0.03, 0.38, h));
