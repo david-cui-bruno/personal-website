@@ -367,6 +367,82 @@ canvas {
   color: #6d5836;
 }
 
+.hud-mute {
+  position: fixed;
+  top: 64px;
+  right: 24px;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(50, 27, 10, 0.42);
+  backdrop-filter: blur(6px);
+  font-size: 17px;
+  cursor: pointer;
+  animation: fade-in 0.8s ease;
+}
+
+/* ---------- bottle (contact form) ---------- */
+
+.bottle-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bottle-form textarea,
+.bottle-form input {
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--paper-deep);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 11px 13px;
+  resize: vertical;
+  outline: none;
+}
+
+.bottle-form textarea:focus,
+.bottle-form input:focus {
+  border-color: var(--accent);
+}
+
+.bottle-form button {
+  align-self: flex-start;
+  padding: 11px 22px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.bottle-form button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.bottle-hp {
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+.bottle-sent {
+  text-align: center;
+  padding: 26px 10px 14px;
+}
+
+.bottle-sent-emoji {
+  font-size: 44px;
+  display: block;
+  margin-bottom: 10px;
+}
+
 /* ---------- music live (now playing) ---------- */
 
 .music-live {
@@ -456,6 +532,46 @@ canvas {
 .artist-chips img {
   border-radius: 50%;
   display: block;
+}
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.album-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.album-card:hover {
+  text-decoration: none;
+}
+
+.album-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  margin-bottom: 3px;
+  box-shadow: 0 4px 12px rgba(60, 30, 8, 0.18);
+}
+
+.album-card b {
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+
+.album-card span {
+  color: var(--ink-soft);
+  font-size: 11.5px;
 }
 
 /* ---------- joystick ---------- */

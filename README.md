@@ -52,4 +52,16 @@ The panel hides the live section gracefully when the function isn't configured (
 use `vercel dev` to test it locally. Responses are edge-cached
 (`s-maxage=60, stale-while-revalidate=300`) so traffic never hammers the Spotify API.
 
-Playlist/artist/track embeds: add IDs in `src/config/content.tsx` (`SPOTIFY` object).
+Playlist/artist/track embeds: add IDs or full share URLs in `src/config/content.tsx` (`SPOTIFY` object).
+The panel also shows **albums on repeat** — derived live from the top tracks of the last ~4 weeks.
+
+## Message in a bottle (contact)
+
+The bottle at the waterline is a contact form → `api/bottle.ts`. Set `RESEND_API_KEY`
+(free account at <https://resend.com>) in Vercel env vars and submissions get emailed to David.
+Without the key, the form falls back to opening the visitor's mail app — still functional.
+
+## Sound
+
+Ambient surf + campfire crackle are synthesized in `src/lib/audio.ts` (WebAudio, no audio files).
+Mute button top-right; preference persists in `localStorage`.

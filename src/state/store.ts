@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { isMuted, setMuted } from '../lib/audio'
 
 const STORAGE_KEY = 'davids-island-discovered-v1'
 
@@ -20,12 +21,14 @@ interface GameState {
   toast: string | null
   /** 1 = full quality, 0 = degraded (mobile / weak GPU) */
   quality: number
+  muted: boolean
   start: () => void
   setNearItem: (id: string | null) => void
   openPanel: (id: string) => void
   closePanel: () => void
   clearToast: () => void
   setQuality: (q: number) => void
+  toggleMuted: () => void
 }
 
 export const useGame = create<GameState>((set, get) => ({
@@ -35,7 +38,13 @@ export const useGame = create<GameState>((set, get) => ({
   discovered: loadDiscovered(),
   toast: null,
   quality: typeof window !== 'undefined' && matchMedia('(pointer: coarse)').matches ? 0 : 1,
+  muted: typeof window !== 'undefined' ? isMuted() : false,
   start: () => set({ started: true }),
+  toggleMuted: () => {
+    const next = !get().muted
+    setMuted(next)
+    set({ muted: next })
+  },
   setNearItem: (id) => {
     if (get().nearItemId !== id) set({ nearItemId: id })
   },

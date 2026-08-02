@@ -12,6 +12,8 @@ export function HUD() {
   const toast = useGame((s) => s.toast)
   const openPanel = useGame((s) => s.openPanel)
   const clearToast = useGame((s) => s.clearToast)
+  const muted = useGame((s) => s.muted)
+  const toggleMuted = useGame((s) => s.toggleMuted)
 
   // E to interact
   useEffect(() => {
@@ -52,6 +54,10 @@ export function HUD() {
           {discovered.length}/{ITEMS.length}
         </b>
       </div>
+
+      <button className="hud-mute" onClick={toggleMuted} title={muted ? 'unmute' : 'mute'}>
+        {muted ? '🔇' : '🔊'}
+      </button>
 
       {nearItem && !activePanel && !isTouch && (
         <div className="hud-prompt">

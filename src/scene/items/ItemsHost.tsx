@@ -8,12 +8,16 @@ import { Chest } from './Chest'
 import { MedKit } from './MedKit'
 import { Speaker } from './Speaker'
 import { Campfire } from './Campfire'
+import { Bottle } from './Bottle'
+import { Journal } from './Journal'
 
 const MODELS: Record<string, ReactNode> = {
   projects: <Chest />,
   framewise: <MedKit />,
   music: <Speaker />,
   food: <Campfire />,
+  bottle: <Bottle />,
+  journal: <Journal />,
 }
 
 function ItemAnchor({ item }: { item: IslandItem }) {

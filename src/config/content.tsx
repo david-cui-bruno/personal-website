@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { MusicLive } from '../ui/MusicLive'
+import { BottlePanel } from '../ui/BottlePanel'
 
 // ---------------------------------------------------------------------------
 // Everything a visitor can read lives in this file. Search for TODO to find
@@ -23,6 +24,8 @@ export const ITEMS: IslandItem[] = [
   { id: 'framewise', title: 'First-Aid Kit', emoji: '🩹', position: [3.5, 19], interactRadius: 2.4, colliderRadius: 0.55 },
   { id: 'music', title: 'Beach Speaker', emoji: '🔊', position: [-15, -8], interactRadius: 2.8, colliderRadius: 1.4 },
   { id: 'food', title: 'Campfire', emoji: '🍳', position: [9, -13], interactRadius: 2.8, colliderRadius: 1.2 },
+  { id: 'bottle', title: 'Message in a Bottle', emoji: '🍾', position: [-6, 20.5], interactRadius: 2.4, colliderRadius: 0.35 },
+  { id: 'journal', title: 'Journal', emoji: '📖', position: [8.7, -2.6], interactRadius: 2.4, colliderRadius: 0.35 },
 ]
 
 // Palm placement — the hero palm crowns the dune, three smaller ones dot the island.
@@ -101,9 +104,7 @@ const SPOTIFY = {
   tracks: [] as string[],
 }
 
-// TODO(David): paste your Beli profile share link here (Beli app → Profile →
-// share icon → Copy link). Leave '' and the food panel shows plain text.
-const BELI_URL = ''
+const BELI_URL = 'https://beliapp.co/app/sourdog'
 
 function SpotifyEmbed({ type, id, compact }: { type: string; id: string; compact?: boolean }) {
   // Accept either a bare ID or a full share link (open.spotify.com/<type>/<id>?...).
@@ -226,6 +227,34 @@ export const PANEL_CONTENT: Record<string, { heading: string; body: ReactNode }>
           <li>Black tea (it counts)</li>
           <li>Hóng shāo ròu — 红烧肉</li>
         </ul>
+      </>
+    ),
+  },
+
+  bottle: {
+    heading: 'Say hi',
+    body: <BottlePanel />,
+  },
+
+  journal: {
+    heading: 'Field notes',
+    body: (
+      <>
+        <p className="panel-intro">A notebook washed ashore, mostly intact. The legible pages:</p>
+        <p>
+          David Cui — builder. Co-founded <strong>Framewise Health</strong> (YC). Cooks, rates every
+          meal, currently supervised by a tabby named Bebo.
+        </p>
+        <p>
+          <a href="https://github.com/david-cui-bruno" target="_blank" rel="noreferrer">
+            GitHub ↗
+          </a>{' '}
+          ·{' '}
+          <a href="mailto:davidcui824@gmail.com">email ↗</a>
+        </p>
+        <p className="panel-intro">
+          Want to say hi properly? There's an empty bottle down at the waterline.
+        </p>
       </>
     ),
   },

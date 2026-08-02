@@ -45,13 +45,39 @@ function simplifyTrack(t: any) {
   }
 }
 
+// "Albums on repeat" = the albums behind the owner's recent top tracks.
+function aggregateAlbums(topTracks: any) {
+  const map = new Map<string, any>()
+  for (const t of topTracks?.items ?? []) {
+    const al = t.album
+    if (!al?.id) continue
+    const entry = map.get(al.id) ?? {
+      name: al.name,
+      artist: al.artists?.[0]?.name ?? '',
+      image: al.images?.[1]?.url ?? al.images?.[0]?.url ?? null,
+      url: al.external_urls?.spotify ?? null,
+      type: al.album_type,
+      count: 0,
+    }
+    entry.count++
+    map.set(al.id, entry)
+  }
+  const ranked = [...map.values()].sort((a, b) => b.count - a.count)
+  // prefer real albums over singles unless that leaves the shelf too bare
+  const albumsOnly = ranked.filter((a) => a.type === 'album')
+  return (albumsOnly.length >= 3 ? albumsOnly : ranked)
+    .slice(0, 6)
+    .map(({ name, artist, image, url }) => ({ name, artist, image, url }))
+}
+
 export default async function handler(_req: any, res: any) {
   try {
     const token = await getAccessToken()
-    const [current, recent, top] = await Promise.all([
+    const [current, recent, top, topTracks] = await Promise.all([
       spotifyGet(token, '/me/player/currently-playing'),
       spotifyGet(token, '/me/player/recently-played?limit=1'),
       spotifyGet(token, '/me/top/artists?time_range=medium_term&limit=8'),
+      spotifyGet(token, '/me/top/tracks?time_range=short_term&limit=50'),
     ])
     const nowPlaying = current?.is_playing ? simplifyTrack(current.item) : null
     const lastPlayed = simplifyTrack(recent?.items?.[0]?.track)
@@ -60,8 +86,9 @@ export default async function handler(_req: any, res: any) {
       url: a.external_urls?.spotify ?? null,
       image: a.images?.at(-1)?.url ?? null,
     }))
+    const topAlbums = aggregateAlbums(topTracks)
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
-    res.status(200).json({ nowPlaying, lastPlayed, topArtists })
+    res.status(200).json({ nowPlaying, lastPlayed, topArtists, topAlbums })
   } catch (e: any) {
     res.status(500).json({ error: e?.message ?? 'unknown' })
   }

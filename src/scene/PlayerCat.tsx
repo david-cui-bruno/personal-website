@@ -6,6 +6,7 @@ import { terrainHeight, WALKABLE_MIN_HEIGHT } from '../lib/terrain'
 import { ITEMS, EXTRA_COLLIDERS } from '../config/content'
 import { catPosition, joystick, useGame } from '../state/store'
 import { TABBY } from '../config/palette'
+import { setAudioLevels } from '../lib/audio'
 
 const WALK_SPEED = 3.2
 const RUN_MULT = 1.75
@@ -15,6 +16,9 @@ const COLLIDERS = [
   ...EXTRA_COLLIDERS,
   ...ITEMS.filter((i) => i.colliderRadius > 0).map((i) => ({ x: i.position[0], z: i.position[1], r: i.colliderRadius })),
 ]
+
+const fire = ITEMS.find((i) => i.id === 'food')!
+const CAMPFIRE = { x: fire.position[0], z: fire.position[1] }
 
 function dampAngle(current: number, target: number, k: number, dt: number): number {
   let d = (target - current) % (Math.PI * 2)
@@ -173,6 +177,9 @@ export function PlayerCat({ controls }: { controls: RefObject<CameraControls | n
   const vel = useRef(new THREE.Vector3())
   const heading = useRef(Math.PI)
   const phase = useRef(0)
+  const idleTime = useRef(0)
+  const sitW = useRef(0) // 0 = standing, 1 = sitting
+  const audioClock = useRef(0)
 
   const tmp = useMemo(
     () => ({
@@ -264,29 +271,47 @@ export function PlayerCat({ controls }: { controls: RefObject<CameraControls | n
     // ---- camera follow
     controls.current?.moveTo(g.position.x, g.position.y + 0.7, g.position.z, true)
 
+    // ---- ambient audio levels (throttled)
+    audioClock.current += dt
+    if (audioClock.current > 0.15) {
+      audioClock.current = 0
+      const surf = Math.max(0, Math.min(1, 1 - g.position.y / 3.2))
+      const fireDist = Math.hypot(g.position.x - CAMPFIRE.x, g.position.z - CAMPFIRE.z)
+      const fire = Math.max(0, 1 - fireDist / 8) ** 2 * 0.9
+      setAudioLevels(surf, fire)
+    }
+
     // ---- gait + idle animation
     const t = state.clock.elapsedTime
     const speedN = Math.min(speed / WALK_SPEED, 1.6)
     if (speed > 0.05) phase.current += dt * (5 + 7 * speedN)
 
+    // Bebo sits down after a while with nothing to do
+    idleTime.current = speed < 0.05 && !useGame.getState().activePanel ? idleTime.current + dt : 0
+    const sitTarget = idleTime.current > 7 ? 1 : 0
+    sitW.current += (sitTarget - sitW.current) * (1 - Math.exp(-(sitTarget ? 3 : 7) * dt))
+    const sit = sitW.current
+    const stand = 1 - sit
+
     const swing = Math.sin(phase.current) * 0.6 * Math.min(1, speedN + 0.15)
     const [fl, fr, bl, br] = refs.legs
-    if (fl.current) fl.current.rotation.x = swing
-    if (br.current) br.current.rotation.x = swing
-    if (fr.current) fr.current.rotation.x = -swing
-    if (bl.current) bl.current.rotation.x = -swing
+    if (fl.current) fl.current.rotation.x = swing * stand - 0.16 * sit
+    if (br.current) br.current.rotation.x = swing * stand + 1.35 * sit
+    if (fr.current) fr.current.rotation.x = -swing * stand - 0.16 * sit
+    if (bl.current) bl.current.rotation.x = -swing * stand + 1.35 * sit
 
     if (refs.body.current) {
-      refs.body.current.position.y = Math.abs(Math.sin(phase.current * 2)) * 0.028 * speedN + Math.sin(t * 2.1) * 0.006
-      refs.body.current.rotation.x = Math.sin(phase.current * 2) * 0.02 * speedN
+      refs.body.current.position.y =
+        (Math.abs(Math.sin(phase.current * 2)) * 0.028 * speedN) * stand - 0.08 * sit + Math.sin(t * 2.1) * 0.006
+      refs.body.current.rotation.x = Math.sin(phase.current * 2) * 0.02 * speedN * stand - 0.42 * sit
     }
     if (refs.head.current) {
-      refs.head.current.rotation.x = Math.sin(phase.current * 2 + 1) * 0.03 * speedN
+      refs.head.current.rotation.x = Math.sin(phase.current * 2 + 1) * 0.03 * speedN * stand + 0.34 * sit
     }
-    // tail: lifts with speed, lazy figure-eight sway at rest
+    // tail: lifts with speed, lazy sway at rest, curls around when sitting
     if (refs.tail[0].current) {
-      refs.tail[0].current.rotation.x = 0.9 + speedN * 0.28 + Math.sin(t * 1.4) * 0.07
-      refs.tail[0].current.rotation.y = Math.sin(t * 1.1) * 0.18
+      refs.tail[0].current.rotation.x = (0.9 + speedN * 0.28 + Math.sin(t * 1.4) * 0.07) * stand + 0.35 * sit
+      refs.tail[0].current.rotation.y = Math.sin(t * 1.1) * 0.18 + 0.9 * sit
     }
     for (let i = 1; i < 3; i++) {
       const seg = refs.tail[i].current

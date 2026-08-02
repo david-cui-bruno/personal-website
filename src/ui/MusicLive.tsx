@@ -7,10 +7,18 @@ interface Track {
   url: string | null
 }
 
+interface Album {
+  name: string
+  artist: string
+  image: string | null
+  url: string | null
+}
+
 interface SpotifyData {
   nowPlaying: Track | null
   lastPlayed: Track | null
   topArtists: { name: string; url: string | null; image: string | null }[]
+  topAlbums?: Album[]
 }
 
 // Live "now playing" from /api/spotify (Vercel function). Renders nothing
@@ -24,7 +32,7 @@ export function MusicLive() {
     fetch('/api/spotify')
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((d: SpotifyData) => {
-        if (alive && (d.nowPlaying || d.lastPlayed || d.topArtists?.length)) setData(d)
+        if (alive && (d.nowPlaying || d.lastPlayed || d.topArtists?.length || d.topAlbums?.length)) setData(d)
       })
       .catch(() => {})
     return () => {
@@ -49,6 +57,20 @@ export function MusicLive() {
             <span className="np-artist">{track.artist}</span>
           </span>
         </a>
+      )}
+      {(data.topAlbums?.length ?? 0) > 0 && (
+        <>
+          <h3>Albums on repeat lately</h3>
+          <div className="album-grid">
+            {data.topAlbums!.map((a) => (
+              <a key={a.name + a.artist} href={a.url ?? undefined} target="_blank" rel="noreferrer" className="album-card">
+                {a.image && <img src={a.image} alt="" loading="lazy" />}
+                <b>{a.name}</b>
+                <span>{a.artist}</span>
+              </a>
+            ))}
+          </div>
+        </>
       )}
       {data.topArtists.length > 0 && (
         <>
